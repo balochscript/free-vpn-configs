@@ -113,22 +113,36 @@ class TelegramScraper:
         return unique_configs
 
 async def main():
-    # خواندن تنظیمات
-    with open('configs/channels.json') as f:
+    # خواندن تنظیمات با مسیر مطلق
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(current_dir, '..', 'configs', 'channels.json')
+    
+    with open(config_path) as f:
         settings = json.load(f)
     
-    scraper = TelegramScraper()
+    # دریافت session از environment
+    session_string = os.getenv('PYROGRAM_SESSION')
+    
+    if not session_string:
+        print("❌ PYROGRAM_SESSION not found in environment!")
+        return
+    
+    print("✅ Session found, starting scraper...")
+    
+    scraper = TelegramScraper(session_string)
     
     configs = await scraper.scrape_all(
         settings['telegram_channels'],
         settings['test_settings']['max_messages_per_channel']
     )
     
-    # ذخیره در فایل موقت
-    with open('raw_configs.json', 'w', encoding='utf-8') as f:
+    # ذخیره در مسیر صحیح
+    output_path = os.path.join(current_dir, '..', 'raw_configs.json')
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(configs, f, indent=2, ensure_ascii=False)
     
-    print(f"\n✅ Saved {len(configs)} configs to raw_configs.json")
+    print(f"\n✅ Saved {len(configs)} configs to {output_path}")
 
 if __name__ == '__main__':
     asyncio.run(main())
