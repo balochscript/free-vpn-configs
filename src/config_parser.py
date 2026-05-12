@@ -42,7 +42,14 @@ class ConfigParser:
                 return None
             
             server = server_port[0]
-            port = int(server_port[1])
+            
+            # رفع خطای parsing port - حذف / و هر چیز بعد از آن
+            try:
+                port_clean = server_port[1].split('/')[0].split('?')[0]
+                port = int(port_clean)
+            except (ValueError, IndexError):
+                print(f"Error parsing VLESS port: {server_port[1]}")
+                return None
             
             # پارس پارامترها
             params = parse_qs(params_part)
@@ -80,8 +87,13 @@ class ConfigParser:
             
             # تلاش برای decode کردن base64
             if '@' not in url:
-                decoded = base64.b64decode(url + '==').decode('utf-8')
-                url = decoded
+                # اضافه کردن errors='ignore' برای رفع خطای UTF-8
+                try:
+                    decoded = base64.b64decode(url + '==').decode('utf-8', errors='ignore')
+                    url = decoded
+                except:
+                    # اگر decode نشد، احتمالاً فرمت دیگری است
+                    return None
             
             # method:password@server:port
             parts = url.split('@')
@@ -108,6 +120,59 @@ class ConfigParser:
             return None
     
     @staticmethod
+    def parse_trojan(url: str) -> Optional[Dict]:
+        """پارس کردن لینک trojan://"""
+        try:
+            # trojan://PASSWORD@SERVER:PORT?params#NAME
+            url = url.replace('trojan://', '')
+            
+            # جدا کردن نام
+            if '#' in url:
+                url, name = url.split('#', 1)
+                name = unquote(name)
+            else:
+                name = "Trojan Config"
+            
+            # جدا کردن پارامترها
+            if '?' in url:
+                main_part, params_part = url.split('?', 1)
+            else:
+                main_part, params_part = url, ''
+            
+            # PASSWORD@SERVER:PORT
+            parts = main_part.split('@')
+            if len(parts) != 2:
+                return None
+            
+            password = parts[0]
+            server_port = parts[1].split(':')
+            
+            if len(server_port) != 2:
+                return None
+            
+            server = server_port[0]
+            port = int(server_port[1])
+            
+            # پارس پارامترها
+            params = parse_qs(params_part)
+            
+            return {
+                'protocol': 'trojan',
+                'password': password,
+                'server': server,
+                'port': port,
+                'name': name,
+                'security': params.get('security', ['tls'])[0],
+                'sni': params.get('sni', [''])[0],
+                'type': params.get('type', ['tcp'])[0],
+                'fp': params.get('fp', [''])[0],
+                'raw_link': f"trojan://{url}"
+            }
+        except Exception as e:
+            print(f"Error parsing Trojan: {e}")
+            return None
+    
+    @staticmethod
     def extract_configs(text: str, protocols: list) -> list:
         """استخراج تمام کانفیگ‌ها از متن"""
         configs = []
@@ -117,7 +182,8 @@ class ConfigParser:
             'vless': r'vless://[^\s\)]+',
             'ss': r'ss://[A-Za-z0-9+/=]+(?:#[^\s\)]*)?',
             'shadowsocks': r'shadowsocks://[^\s\)]+',
-            'socks': r'socks[45]?://[^\s\)]+'
+            'socks': r'socks[45]?://[^\s\)]+',
+            'trojan': r'trojan://[^\s\)]+'
         }
         
         for protocol in protocols:
@@ -133,6 +199,8 @@ class ConfigParser:
                         parsed = ConfigParser.parse_vless(match)
                     elif protocol in ['ss', 'shadowsocks']:
                         parsed = ConfigParser.parse_shadowsocks(match)
+                    elif protocol == 'trojan':
+                        parsed = ConfigParser.parse_trojan(match)
                     # اضافه کردن پارسر socks در صورت نیاز
                     
                     if parsed:
