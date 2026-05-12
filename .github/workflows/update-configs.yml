@@ -1,0 +1,86 @@
+name: Update Free VPN Configs
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'  # هر ۴ ساعت
+  workflow_dispatch:  # اجرای دستی
+  push:
+    branches: [ main ]
+
+jobs:
+  update-configs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Install Xray-core
+        run: |
+          wget -q https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
+          unzip -q Xray-linux-64.zip
+          sudo mv xray /usr/local/bin/
+          sudo chmod +x /usr/local/bin/xray
+          xray version
+      
+      - name: Scrape Telegram channels
+        env:
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+        run: |
+          cd src
+          python scraper.py
+          
+          if [ ! -f ../raw_configs.json ]; then
+            echo "❌ No configs found!"
+            exit 1
+          fi
+          
+          echo "✅ Scraped $(jq length ../raw_configs.json) configs"
+      
+      - name: Test configs
+        run: |
+          cd src
+          python tester.py
+          
+          if [ ! -f ../working_configs.json ]; then
+            echo "⚠️ No working configs found!"
+            exit 0
+          fi
+          
+          echo "✅ Found $(jq length ../working_configs.json) working configs"
+      
+      - name: Generate subscription
+        run: |
+          cd src
+          python utils.py
+          
+          echo "✅ Generated subscription file"
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+          keep_files: false
+          commit_message: '🔄 Auto-update configs'
+      
+      - name: Summary
+        run: |
+          echo "## 📊 Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 🕐 Time: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- 📥 Raw configs: $(jq length raw_configs.json 2>/dev/null || echo 0)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Working configs: $(jq length working_configs.json 2>/dev/null || echo 0)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 Subscription: https://$(echo $GITHUB_REPOSITORY | cut -d'/' -f1).github.io/$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)/subscription.txt" >> $GITHUB_STEP_SUMMARY
