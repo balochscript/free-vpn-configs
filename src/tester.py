@@ -171,7 +171,7 @@ class ConfigTester:
         
         return result
     
-    async def test_all(self, configs: list, min_volume_mb: int = 2, max_concurrent: int = 10) -> list:
+    async def test_all(self, configs: list, min_volume_mb: int = 2, max_concurrent: int = 10) -> dict:
         print(f"\n🧪 Testing {len(configs)} configs...")
         print(f"   Min volume: {min_volume_mb} MB")
         print(f"   Concurrent: {max_concurrent}")
@@ -185,14 +185,18 @@ class ConfigTester:
         tasks = [test_with_semaphore(config) for config in configs]
         results = await asyncio.gather(*tasks)
         
+        alive = [r for r in results if r['alive']]
         working = [r for r in results if r['alive'] and r['has_volume']]
         
         print(f"\n📊 Results:")
         print(f"   Tested: {len(results)}")
-        print(f"   Alive: {sum(1 for r in results if r['alive'])}")
+        print(f"   Alive: {len(alive)}")
         print(f"   With volume: {len(working)}")
         
-        return working
+        return {
+            'alive': alive,
+            'working': working
+        }
 
 async def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -211,14 +215,19 @@ async def main():
     
     tester = ConfigTester()
     
-    working_configs = await tester.test_all(configs, min_volume, concurrent)
+    result = await tester.test_all(configs, min_volume, concurrent)
     
-    output_path = os.path.join(current_dir, '..', 'working_configs.json')
+    alive_path = os.path.join(current_dir, '..', 'alive_configs.json')
+    working_path = os.path.join(current_dir, '..', 'working_configs.json')
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(working_configs, f, indent=2, ensure_ascii=False)
+    with open(alive_path, 'w', encoding='utf-8') as f:
+        json.dump(result['alive'], f, indent=2, ensure_ascii=False)
     
-    print(f"\n✅ Saved {len(working_configs)} configs")
+    with open(working_path, 'w', encoding='utf-8') as f:
+        json.dump(result['working'], f, indent=2, ensure_ascii=False)
+    
+    print(f"\n✅ Saved {len(result['alive'])} alive configs")
+    print(f"✅ Saved {len(result['working'])} working configs")
 
 if __name__ == '__main__':
     asyncio.run(main())
