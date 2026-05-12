@@ -47,8 +47,7 @@ jobs:
           rm -f Xray-linux-64.zip geoip.dat geosite.dat LICENSE README.md
       
       - name: Verify Xray installation
-        run: |
-          xray version
+        run: xray version
       
       - name: Scrape Telegram channels
         env:
@@ -89,35 +88,29 @@ jobs:
         run: |
           cd src
           python utils.py
-          
-          echo "📂 Files in src/:"
-          ls -lh subscription.txt index.html 2>/dev/null || echo "Files not found in src/"
+          echo "✅ Generated subscription and HTML files"
       
       - name: Prepare deployment folder
         run: |
           mkdir -p deploy
           
-          # کپی از src/ به deploy/
           if [ -f src/subscription.txt ]; then
             cp src/subscription.txt deploy/
             echo "✅ Copied subscription.txt"
           else
-            echo "⚠️ subscription.txt not found in src/"
+            echo "⚠️ subscription.txt not found"
           fi
           
           if [ -f src/index.html ]; then
             cp src/index.html deploy/
             echo "✅ Copied index.html"
           else
-            echo "⚠️ index.html not found in src/"
+            echo "⚠️ index.html not found"
           fi
           
-          # ساخت فایل اطلاعات
-          cat > deploy/last_update.txt << EOF
-Last update: $(date '+%Y-%m-%d %H:%M:%S UTC')
-Scraped configs: ${SCRAPED_COUNT:-0}
-Working configs: ${WORKING_COUNT:-0}
-EOF
+          echo "Last update: $(date '+%Y-%m-%d %H:%M:%S UTC')" > deploy/last_update.txt
+          echo "Scraped configs: ${SCRAPED_COUNT:-0}" >> deploy/last_update.txt
+          echo "Working configs: ${WORKING_COUNT:-0}" >> deploy/last_update.txt
           
           echo ""
           echo "📦 Deploy folder contents:"
@@ -130,22 +123,20 @@ EOF
           publish_dir: ./deploy
           publish_branch: gh-pages
           force_orphan: true
-          commit_message: '🔄 Update: ${{ env.WORKING_COUNT }} configs'
+          commit_message: '🔄 Update configs'
       
       - name: Build summary
         run: |
           echo "## 📊 Update Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- 🕐 **Time**: $(date '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "- 📥 **Scraped**: ${SCRAPED_COUNT:-0} configs" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ **Working**: ${WORKING_COUNT:-0} configs" >> $GITHUB_STEP_SUMMARY
+          echo "- 🕐 Time: $(date '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- 📥 Scraped: ${SCRAPED_COUNT:-0} configs" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Working: ${WORKING_COUNT:-0} configs" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔗 Subscription Links" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Raw (recommended):**" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "Raw link (recommended):" >> $GITHUB_STEP_SUMMARY
           echo "https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Website:**" >> $GITHUB_STEP_SUMMARY
+          echo "Website:" >> $GITHUB_STEP_SUMMARY
           echo "https://balochscript.github.io/free-vpn-configs/" >> $GITHUB_STEP_SUMMARY
