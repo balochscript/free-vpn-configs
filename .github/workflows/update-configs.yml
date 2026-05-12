@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'configs/**'
 
 jobs:
   update-configs:
@@ -51,12 +54,13 @@ jobs:
         run: |
           cd src
           timeout 10m python scraper.py || echo "Scraper timeout"
+          cd ..
           
-          if [ ! -f ../raw_configs.json ]; then
-            echo "[]" > ../raw_configs.json
+          if [ ! -f raw_configs.json ]; then
+            echo "[]" > raw_configs.json
           fi
           
-          COUNT=$(jq length ../raw_configs.json)
+          COUNT=$(jq length raw_configs.json)
           echo "📥 Scraped: $COUNT configs"
           echo "SCRAPED_COUNT=$COUNT" >> $GITHUB_ENV
       
@@ -65,54 +69,64 @@ jobs:
         run: |
           cd src
           timeout 15m python tester.py || echo "Tester timeout"
+          cd ..
           
-          if [ ! -f ../working_configs.json ]; then
-            echo "[]" > ../working_configs.json
+          if [ ! -f working_configs.json ]; then
+            echo "[]" > working_configs.json
           fi
           
-          COUNT=$(jq length ../working_configs.json)
+          COUNT=$(jq length working_configs.json)
           echo "✅ Working: $COUNT configs"
           echo "WORKING_COUNT=$COUNT" >> $GITHUB_ENV
       
-      - name: Create empty working_configs if needed
+      - name: Create empty configs if needed
         if: env.SCRAPED_COUNT == 0
         run: |
           echo "[]" > working_configs.json
           echo "WORKING_COUNT=0" >> $GITHUB_ENV
       
-      - name: Generate subscription
+      - name: Generate files
         run: |
           cd src
           python utils.py
-          echo "✅ Generated subscription and HTML"
+          cd ..
+          
+          echo "📂 Root files:"
+          ls -lh *.html *.txt 2>/dev/null || echo "No files generated"
       
       - name: Prepare deployment
         run: |
           mkdir -p deploy
           
-          if [ -f subscription.txt ]; then
-            cp subscription.txt deploy/
-            echo "✅ Copied subscription.txt"
-          fi
+          # کپی فایل‌ها از root
+          for file in subscription.txt index.html; do
+            if [ -f "$file" ]; then
+              cp "$file" deploy/
+              echo "✅ Copied $file"
+            else
+              echo "⚠️ $file not found"
+            fi
+          done
           
-          if [ -f index.html ]; then
-            cp index.html deploy/
-            echo "✅ Copied index.html"
-          fi
+          # ساخت فایل اطلاعات
+          cat > deploy/last_update.txt << EOF
+Last update: $(date '+%Y-%m-%d %H:%M:%S UTC')
+Scraped: ${SCRAPED_COUNT:-0}
+Working: ${WORKING_COUNT:-0}
+EOF
           
-          echo "Last update: $(date '+%Y-%m-%d %H:%M:%S UTC')" > deploy/last_update.txt
-          echo "Working configs: ${WORKING_COUNT:-0}" >> deploy/last_update.txt
-          
-          ls -la deploy/
+          echo ""
+          echo "📂 Deploy folder:"
+          ls -lah deploy/
       
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./deploy
           publish_branch: gh-pages
           force_orphan: true
-          commit_message: '🔄 Update configs'
+          commit_message: '🔄 Update: ${{ env.WORKING_COUNT }} configs'
       
       - name: Summary
         run: |
@@ -122,4 +136,6 @@ jobs:
           echo "- 📥 Scraped: ${SCRAPED_COUNT:-0}" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Working: ${WORKING_COUNT:-0}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "- Raw: https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt" >> $GITHUB_STEP_SUMMARY
+          echo "- Pages: https://balochscript.github.io/free-vpn-configs/" >> $GITHUB_STEP_SUMMARY
