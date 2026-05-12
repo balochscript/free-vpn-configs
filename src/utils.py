@@ -1,7 +1,7 @@
 import base64
 import json
 
-def generate_subscription(configs: list) -> str:
+def generate_subscription(configs: list, name_suffix: str = "") -> str:
     links = []
     
     if len(configs) == 0:
@@ -10,6 +10,8 @@ def generate_subscription(configs: list) -> str:
     else:
         for config_data in configs:
             config = config_data['config']
+            
+            speed_info = f" | {config_data.get('speed_mbps', 0)}Mbps" if config_data.get('speed_mbps') else ""
             
             if config['protocol'] == 'vless':
                 link = f"vless://{config['uuid']}@{config['server']}:{config['port']}"
@@ -29,14 +31,15 @@ def generate_subscription(configs: list) -> str:
                 if params:
                     link += '?' + '&'.join(params)
                 
-                name = f"{config['name']} | {config_data['speed_mbps']}Mbps"
+                name = f"{config['name']}{speed_info}{name_suffix}"
                 link += f"#{name}"
                 
             elif config['protocol'] in ['shadowsocks', 'ss']:
                 userinfo = f"{config['method']}:{config['password']}"
                 encoded = base64.b64encode(userinfo.encode()).decode()
                 link = f"ss://{encoded}@{config['server']}:{config['port']}"
-                link += f"#{config['name']} | {config_data['speed_mbps']}Mbps"
+                name = f"{config['name']}{speed_info}{name_suffix}"
+                link += f"#{name}"
             
             elif config['protocol'] == 'trojan':
                 link = f"trojan://{config['password']}@{config['server']}:{config['port']}"
@@ -54,7 +57,7 @@ def generate_subscription(configs: list) -> str:
                 if params:
                     link += '?' + '&'.join(params)
                 
-                name = f"{config['name']} | {config_data['speed_mbps']}Mbps"
+                name = f"{config['name']}{speed_info}{name_suffix}"
                 link += f"#{name}"
             
             links.append(link)
@@ -64,18 +67,16 @@ def generate_subscription(configs: list) -> str:
     
     return encoded
 
-def create_html_page(config_count: int, last_update: str) -> str:
-    raw_link = "https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt"
-    pages_link = "https://balochscript.github.io/free-vpn-configs/subscription.txt"
-    
-    status_message = "✅ آماده استفاده" if config_count > 0 else "⚠️ در حال جمع‌آوری کانفیگ..."
+def create_html_page(alive_count: int, working_count: int, last_update: str) -> str:
+    raw_link_all = "https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription-all.txt"
+    raw_link_volume = "https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt"
     
     html = f"""<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>کانفیگ‌های رایگان با حجم</title>
+    <title>کانفیگ‌های رایگان</title>
     <style>
         * {{ font-family: Tahoma, Arial, sans-serif; margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ 
@@ -131,16 +132,6 @@ def create_html_page(config_count: int, last_update: str) -> str:
             transition: all 0.3s;
         }}
         .copy-btn:hover {{ background: #45a049; transform: scale(1.05); }}
-        .copy-btn:active {{ transform: scale(0.95); }}
-        .guide {{
-            background: rgba(255,255,255,0.15);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }}
-        .guide h3 {{ margin-bottom: 15px; }}
-        .guide ol, .guide ul {{ padding-right: 20px; }}
-        .guide li {{ margin: 10px 0; line-height: 1.6; }}
         .badge {{
             display: inline-block;
             background: #ff6b6b;
@@ -150,7 +141,7 @@ def create_html_page(config_count: int, last_update: str) -> str:
             margin: 5px;
         }}
         .success {{ background: #51cf66; }}
-        .warning {{ background: #ffd43b; color: #333; }}
+        .info {{ background: #339af0; }}
         .footer {{
             text-align: center;
             margin-top: 30px;
@@ -160,62 +151,48 @@ def create_html_page(config_count: int, last_update: str) -> str:
 </head>
 <body>
     <div class="container">
-        <h1>🚀 کانفیگ‌های رایگان با حجم</h1>
+        <h1>🚀 کانفیگ‌های رایگان</h1>
         
         <div class="stats">
-            <div>📊 تعداد کانفیگ: <strong>{config_count}</strong></div>
+            <div>✅ کانفیگ‌های سالم: <strong>{alive_count}</strong></div>
+            <div>📦 با حجم واقعی: <strong>{working_count}</strong></div>
             <div>🔄 آخرین بروزرسانی: <strong>{last_update}</strong></div>
-            <div>📡 وضعیت: <strong>{status_message}</strong></div>
             <div style="margin-top: 10px;">
                 <span class="badge success">✅ تست شده</span>
-                <span class="badge success">✅ با حجم</span>
-                <span class="badge">🔄 هر ۵ ساعت</span>
+                <span class="badge info">🔄 هر ۵ ساعت</span>
             </div>
         </div>
         
         <div class="link-section">
-            <h2>📱 لینک اشتراک (برای ایران)</h2>
-            <p style="margin: 10px 0;">این لینک در ایران فیلتر نیست:</p>
-            <div class="link-box" id="rawlink">{raw_link}</div>
-            <button class="copy-btn" onclick="copyRaw()">📋 کپی لینک Raw</button>
-            
-            <h3 style="margin-top: 25px;">📱 لینک جایگزین (GitHub Pages)</h3>
-            <p style="margin: 10px 0; font-size: 0.9em;">
-                <span class="badge warning">⚠️ ممکن است فیلتر باشد</span>
+            <h2>📱 لینک ۱: همه کانفیگ‌های سالم (Alive)</h2>
+            <p style="margin: 10px 0; font-size: 0.95em;">
+                <span class="badge info">ℹ️ {alive_count} کانفیگ - بدون تست حجم</span>
             </p>
-            <div class="link-box" id="pageslink">{pages_link}</div>
-            <button class="copy-btn" onclick="copyPages()">📋 کپی لینک Pages</button>
+            <div class="link-box" id="linkall">{raw_link_all}</div>
+            <button class="copy-btn" onclick="copy('linkall')">📋 کپی لینک</button>
         </div>
         
-        <div class="guide">
-            <h3>🔧 راهنمای استفاده</h3>
-            <ol>
-                <li>لینک Raw بالا را کپی کنید</li>
-                <li>در V2rayNG: ➕ → اضافه کردن اشتراک</li>
-                <li>لینک را وارد کنید و بروزرسانی کنید</li>
-                <li>اگر "کانفیگی پیدا نشد" دیدید، چند ساعت بعد دوباره بروزرسانی کنید</li>
-            </ol>
+        <div class="link-section">
+            <h2>📦 لینک ۲: فقط با حجم واقعی (توصیه می‌شود)</h2>
+            <p style="margin: 10px 0; font-size: 0.95em;">
+                <span class="badge success">✅ {working_count} کانفیگ - با حجم تست‌شده</span>
+            </p>
+            <div class="link-box" id="linkvolume">{raw_link_volume}</div>
+            <button class="copy-btn" onclick="copy('linkvolume')">📋 کپی لینک</button>
         </div>
         
         <div class="footer">
             <p>⭐ اگر مفید بود، یک استار بدید!</p>
-            <p><a href="https://github.com/balochscript/free-vpn-configs" style="color: white;">GitHub Repository</a></p>
-            <p style="margin-top: 15px; opacity: 0.7;">Made with ❤️ for free internet</p>
+            <p><a href="https://github.com/balochscript/free-vpn-configs" style="color: white;">GitHub</a></p>
+            <p style="margin-top: 10px; opacity: 0.7;">Made with ❤️ for free internet</p>
         </div>
     </div>
     
     <script>
-        function copyRaw() {{
-            const link = document.getElementById('rawlink').textContent.trim();
-            navigator.clipboard.writeText(link).then(() => {{
-                alert('✅ لینک Raw کپی شد!');
-            }});
-        }}
-        
-        function copyPages() {{
-            const link = document.getElementById('pageslink').textContent.trim();
-            navigator.clipboard.writeText(link).then(() => {{
-                alert('✅ لینک Pages کپی شد!');
+        function copy(id) {{
+            const text = document.getElementById(id).textContent.trim();
+            navigator.clipboard.writeText(text).then(() => {{
+                alert('✅ کپی شد!');
             }});
         }}
     </script>
@@ -228,23 +205,37 @@ if __name__ == '__main__':
     from datetime import datetime
     
     current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    alive_path = os.path.join(current_dir, '..', 'alive_configs.json')
     working_path = os.path.join(current_dir, '..', 'working_configs.json')
     
     try:
-        with open(working_path) as f:
-            configs = json.load(f)
+        with open(alive_path) as f:
+            alive_configs = json.load(f)
     except:
-        configs = []
+        alive_configs = []
     
-    subscription = generate_subscription(configs)
+    try:
+        with open(working_path) as f:
+            working_configs = json.load(f)
+    except:
+        working_configs = []
+    
+    sub_all = generate_subscription(alive_configs)
+    sub_volume = generate_subscription(working_configs)
+    
+    with open('subscription-all.txt', 'w') as f:
+        f.write(sub_all)
     
     with open('subscription.txt', 'w') as f:
-        f.write(subscription)
+        f.write(sub_volume)
     
-    print(f"✅ Generated subscription with {len(configs)} configs")
+    print(f"✅ Generated subscription-all.txt with {len(alive_configs)} configs")
+    print(f"✅ Generated subscription.txt with {len(working_configs)} configs")
     
     html = create_html_page(
-        len(configs),
+        len(alive_configs),
+        len(working_configs),
         datetime.now().strftime('%Y-%m-%d %H:%M UTC')
     )
     
