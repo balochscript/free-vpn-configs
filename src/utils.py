@@ -128,7 +128,7 @@ def create_html_page(config_count: int, last_update: str) -> str:
         
         <h2>📱 لینک اشتراک (Subscription Link)</h2>
         <div class="link-box" id="sublink">
-            https://YOUR_USERNAME.github.io/YOUR_REPO/subscription.txt
+            https://balochscript.github.io/free-vpn-configs/subscription.txt
         </div>
         <button class="copy-btn" onclick="copyLink()">📋 کپی لینک</button>
         
