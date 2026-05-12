@@ -1,7 +1,3 @@
-"""
-استخراج کانفیگ‌ها از کانال‌های تلگرام با Pyrogram
-"""
-
 import asyncio
 import json
 import os
@@ -11,7 +7,6 @@ from config_parser import ConfigParser
 
 class TelegramScraper:
     def __init__(self, session_string):
-        """ساخت client با session string"""
         self.app = Client(
             name="my_scraper",
             api_id=2040,
@@ -21,7 +16,6 @@ class TelegramScraper:
         )
     
     async def scrape_channel(self, channel: str, max_messages: int = 50) -> list:
-        """استخراج کانفیگ از یک کانال"""
         configs = []
         
         try:
@@ -33,7 +27,7 @@ class TelegramScraper:
                 if message.text:
                     extracted = ConfigParser.extract_configs(
                         message.text,
-                        ['vless', 'ss', 'shadowsocks']
+                        ['vless', 'ss', 'shadowsocks', 'trojan']
                     )
                     
                     if extracted:
@@ -59,7 +53,6 @@ class TelegramScraper:
         return configs
     
     async def scrape_all(self, channels: list, max_messages: int = 50) -> list:
-        """استخراج از تمام کانال‌ها"""
         all_configs = []
         
         await self.app.start()
