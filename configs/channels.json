@@ -8,12 +8,12 @@
     "blackRay",
     "AmyraxVPN"
   ],
-  "supported_protocols": ["vless", "ss", "shadowsocks", "socks"],
+  "supported_protocols": ["vless", "ss", "shadowsocks", "trojan"],
   "test_settings": {
-    "concurrent_tests": 20,
-    "connection_timeout": 15,
+    "concurrent_tests": 12,
+    "connection_timeout": 10,
     "volume_test_enabled": true,
-    "min_volume_mb": 5,
+    "min_volume_mb": 2,
     "max_messages_per_channel": 100
   }
 }
