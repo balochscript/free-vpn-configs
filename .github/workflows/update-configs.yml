@@ -9,6 +9,7 @@ on:
     paths:
       - 'src/**'
       - 'configs/**'
+      - '.github/workflows/**'
 
 jobs:
   update-configs:
@@ -16,7 +17,7 @@ jobs:
     timeout-minutes: 30
     
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
       
       - name: Setup Python
@@ -25,18 +26,18 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
       
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           pip install --no-cache-dir -r requirements.txt
       
-      - name: Cache Xray
+      - name: Cache Xray binary
         id: cache-xray
         uses: actions/cache@v3
         with:
           path: /usr/local/bin/xray
           key: xray-latest
       
-      - name: Install Xray
+      - name: Install Xray-core
         if: steps.cache-xray.outputs.cache-hit != 'true'
         run: |
           wget -q https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
@@ -45,78 +46,81 @@ jobs:
           sudo chmod +x /usr/local/bin/xray
           rm -f Xray-linux-64.zip geoip.dat geosite.dat LICENSE README.md
       
-      - name: Verify Xray
-        run: xray version
+      - name: Verify Xray installation
+        run: |
+          xray version
       
-      - name: Scrape configs
+      - name: Scrape Telegram channels
         env:
           PYROGRAM_SESSION: ${{ secrets.PYROGRAM_SESSION }}
         run: |
           cd src
           timeout 10m python scraper.py || echo "Scraper timeout"
-          cd ..
           
-          if [ ! -f raw_configs.json ]; then
-            echo "[]" > raw_configs.json
+          if [ ! -f ../raw_configs.json ]; then
+            echo "[]" > ../raw_configs.json
           fi
           
-          COUNT=$(jq length raw_configs.json)
+          COUNT=$(jq length ../raw_configs.json)
           echo "📥 Scraped: $COUNT configs"
           echo "SCRAPED_COUNT=$COUNT" >> $GITHUB_ENV
       
-      - name: Test configs
+      - name: Test configs for volume
         if: env.SCRAPED_COUNT > 0
         run: |
           cd src
           timeout 15m python tester.py || echo "Tester timeout"
-          cd ..
           
-          if [ ! -f working_configs.json ]; then
-            echo "[]" > working_configs.json
+          if [ ! -f ../working_configs.json ]; then
+            echo "[]" > ../working_configs.json
           fi
           
-          COUNT=$(jq length working_configs.json)
+          COUNT=$(jq length ../working_configs.json)
           echo "✅ Working: $COUNT configs"
           echo "WORKING_COUNT=$COUNT" >> $GITHUB_ENV
       
-      - name: Create empty configs if needed
+      - name: Create empty configs if no scrape
         if: env.SCRAPED_COUNT == 0
         run: |
           echo "[]" > working_configs.json
           echo "WORKING_COUNT=0" >> $GITHUB_ENV
       
-      - name: Generate files
+      - name: Generate subscription files
         run: |
           cd src
           python utils.py
-          cd ..
           
-          echo "📂 Root files:"
-          ls -lh *.html *.txt 2>/dev/null || echo "No files generated"
+          echo "📂 Files in src/:"
+          ls -lh subscription.txt index.html 2>/dev/null || echo "Files not found in src/"
       
-      - name: Prepare deployment
+      - name: Prepare deployment folder
         run: |
           mkdir -p deploy
           
-          # کپی فایل‌ها از root
-          for file in subscription.txt index.html; do
-            if [ -f "$file" ]; then
-              cp "$file" deploy/
-              echo "✅ Copied $file"
-            else
-              echo "⚠️ $file not found"
-            fi
-          done
+          # کپی از src/ به deploy/
+          if [ -f src/subscription.txt ]; then
+            cp src/subscription.txt deploy/
+            echo "✅ Copied subscription.txt"
+          else
+            echo "⚠️ subscription.txt not found in src/"
+          fi
+          
+          if [ -f src/index.html ]; then
+            cp src/index.html deploy/
+            echo "✅ Copied index.html"
+          else
+            echo "⚠️ index.html not found in src/"
+          fi
           
           # ساخت فایل اطلاعات
           cat > deploy/last_update.txt << EOF
 Last update: $(date '+%Y-%m-%d %H:%M:%S UTC')
-Scraped: ${SCRAPED_COUNT:-0}
-Working: ${WORKING_COUNT:-0}
+Scraped configs: ${SCRAPED_COUNT:-0}
+Working configs: ${WORKING_COUNT:-0}
 EOF
           
           echo ""
-          echo "📂 Deploy folder:"
+          echo "📦 Deploy folder contents:"
           ls -lah deploy/
       
       - name: Deploy to GitHub Pages
@@ -128,14 +132,20 @@ EOF
           force_orphan: true
           commit_message: '🔄 Update: ${{ env.WORKING_COUNT }} configs'
       
-      - name: Summary
+      - name: Build summary
         run: |
           echo "## 📊 Update Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- 🕐 Time: $(date '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "- 📥 Scraped: ${SCRAPED_COUNT:-0}" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Working: ${WORKING_COUNT:-0}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🕐 **Time**: $(date '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- 📥 **Scraped**: ${SCRAPED_COUNT:-0} configs" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ **Working**: ${WORKING_COUNT:-0} configs" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
-          echo "- Raw: https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt" >> $GITHUB_STEP_SUMMARY
-          echo "- Pages: https://balochscript.github.io/free-vpn-configs/" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Subscription Links" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Raw (recommended):**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Website:**" >> $GITHUB_STEP_SUMMARY
+          echo "https://balochscript.github.io/free-vpn-configs/" >> $GITHUB_STEP_SUMMARY
