@@ -5,7 +5,7 @@ def generate_subscription(configs: list) -> str:
     links = []
     
     if len(configs) == 0:
-        placeholder = "vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none&type=tcp#%E2%9D%8C%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%DA%AF%20%D8%B3%D8%A7%D9%84%D9%85%DB%8C%20%DB%8C%D8%A7%D9%81%D8%AA%20%D9%86%D8%B4%D8%AF%20-%20%D9%84%D8%B7%D9%81%D8%A7%20%D8%A8%D8%B9%D8%AF%D8%A7%20%D8%A8%D8%B1%D9%88%D8%B2%D8%B1%D8%B3%D8%A7%D9%86%DB%8C%20%DA%A9%D9%86%DB%8C%D8%AF"
+        placeholder = "vless://00000000-0000-0000-0000-000000000000@127.0.0.1:443?encryption=none&security=none&type=tcp#%E2%9D%8C%20%DA%A9%D8%A7%D9%86%D9%81%DB%8C%DA%AF%DB%8C%20%D9%BE%DB%8C%D8%AF%D8%A7%20%D9%86%D8%B4%D8%AF%20-%20%D8%A8%D8%B9%D8%AF%D8%A7%20%D8%A8%D8%B1%D9%88%D8%B2%D8%B1%D8%B3%D8%A7%D9%86%DB%8C%20%DA%A9%D9%86%DB%8C%D8%AF"
         links.append(placeholder)
     else:
         for config_data in configs:
@@ -67,6 +67,8 @@ def generate_subscription(configs: list) -> str:
 def create_html_page(config_count: int, last_update: str) -> str:
     raw_link = "https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt"
     pages_link = "https://balochscript.github.io/free-vpn-configs/subscription.txt"
+    
+    status_message = "✅ آماده استفاده" if config_count > 0 else "⚠️ در حال جمع‌آوری کانفیگ..."
     
     html = f"""<!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -163,6 +165,7 @@ def create_html_page(config_count: int, last_update: str) -> str:
         <div class="stats">
             <div>📊 تعداد کانفیگ: <strong>{config_count}</strong></div>
             <div>🔄 آخرین بروزرسانی: <strong>{last_update}</strong></div>
+            <div>📡 وضعیت: <strong>{status_message}</strong></div>
             <div style="margin-top: 10px;">
                 <span class="badge success">✅ تست شده</span>
                 <span class="badge success">✅ با حجم</span>
@@ -185,43 +188,13 @@ def create_html_page(config_count: int, last_update: str) -> str:
         </div>
         
         <div class="guide">
-            <h3>🔧 راهنمای استفاده ترکیبی (V2rayNG + Psiphon)</h3>
+            <h3>🔧 راهنمای استفاده</h3>
             <ol>
-                <li><strong>تنظیم V2rayNG:</strong>
-                    <ul>
-                        <li>منو → تنظیمات</li>
-                        <li>Local proxy port: <code>10808</code></li>
-                        <li>Mode: <code>Proxy only</code></li>
-                    </ul>
-                </li>
-                <li><strong>اضافه کردن ساب‌لینک:</strong>
-                    <ul>
-                        <li>دکمه ➕ → اضافه کردن اشتراک</li>
-                        <li>لینک Raw بالا را وارد کنید</li>
-                        <li>بروزرسانی → انتخاب کانفیگ → اتصال</li>
-                    </ul>
-                </li>
-                <li><strong>تنظیم Psiphon:</strong>
-                    <ul>
-                        <li>Options → VPN Settings</li>
-                        <li>Only tunnel selected apps ✓</li>
-                        <li>Select apps → تلگرام ✓ (V2rayNG ✗)</li>
-                        <li>Proxy Settings → HTTP Proxy ✓</li>
-                        <li>Host: <code>127.0.0.1</code>, Port: <code>10808</code></li>
-                        <li>Start Psiphon</li>
-                    </ul>
-                </li>
+                <li>لینک Raw بالا را کپی کنید</li>
+                <li>در V2rayNG: ➕ → اضافه کردن اشتراک</li>
+                <li>لینک را وارد کنید و بروزرسانی کنید</li>
+                <li>اگر "کانفیگی پیدا نشد" دیدید، چند ساعت بعد دوباره بروزرسانی کنید</li>
             </ol>
-        </div>
-        
-        <div class="guide">
-            <h3>⚡ نکات مهم</h3>
-            <ul>
-                <li>✅ لینک Raw در ایران فیلتر نیست</li>
-                <li>✅ همه کانفیگ‌ها دارای حجم تست‌شده هستند</li>
-                <li>✅ هر ۵ ساعت بروزرسانی خودکار</li>
-                <li>⚠️ اگر "کانفیگ یافت نشد" دیدید، بعداً بروزرسانی کنید</li>
-            </ul>
         </div>
         
         <div class="footer">
