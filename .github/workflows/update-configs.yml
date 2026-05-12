@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 30
     
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
       
       - name: Setup Python
@@ -22,11 +22,11 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
       
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           pip install --no-cache-dir -r requirements.txt
       
-      - name: Cache Xray binary
+      - name: Cache Xray
         id: cache-xray
         uses: actions/cache@v3
         with:
@@ -42,11 +42,10 @@ jobs:
           sudo chmod +x /usr/local/bin/xray
           rm -f Xray-linux-64.zip geoip.dat geosite.dat LICENSE README.md
       
-      - name: Verify Xray installation
-        run: |
-          xray version
+      - name: Verify Xray
+        run: xray version
       
-      - name: Scrape Telegram channels
+      - name: Scrape configs
         env:
           PYROGRAM_SESSION: ${{ secrets.PYROGRAM_SESSION }}
         run: |
@@ -75,37 +74,52 @@ jobs:
           echo "✅ Working: $COUNT configs"
           echo "WORKING_COUNT=$COUNT" >> $GITHUB_ENV
       
+      - name: Create empty working_configs if needed
+        if: env.SCRAPED_COUNT == 0
+        run: |
+          echo "[]" > working_configs.json
+          echo "WORKING_COUNT=0" >> $GITHUB_ENV
+      
       - name: Generate subscription
-        if: env.WORKING_COUNT > 0
         run: |
           cd src
           python utils.py
-          echo "✅ Generated subscription file"
+          echo "✅ Generated subscription and HTML"
       
       - name: Prepare deployment
         run: |
           mkdir -p deploy
-          mv subscription.txt deploy/ 2>/dev/null || echo "No subscription.txt"
-          mv index.html deploy/ 2>/dev/null || echo "No index.html"
+          
+          if [ -f subscription.txt ]; then
+            cp subscription.txt deploy/
+            echo "✅ Copied subscription.txt"
+          fi
+          
+          if [ -f index.html ]; then
+            cp index.html deploy/
+            echo "✅ Copied index.html"
+          fi
+          
           echo "Last update: $(date '+%Y-%m-%d %H:%M:%S UTC')" > deploy/last_update.txt
           echo "Working configs: ${WORKING_COUNT:-0}" >> deploy/last_update.txt
+          
+          ls -la deploy/
       
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./deploy
           publish_branch: gh-pages
           force_orphan: true
-          commit_message: '🔄 Auto-update configs'
+          commit_message: '🔄 Update configs'
       
       - name: Summary
         run: |
           echo "## 📊 Update Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- 🕐 Time: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "- 🕐 Time: $(date '+%Y-%m-%d %H:%M UTC')" >> $GITHUB_STEP_SUMMARY
           echo "- 📥 Scraped: ${SCRAPED_COUNT:-0}" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Working: ${WORKING_COUNT:-0}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 Subscription Link:" >> $GITHUB_STEP_SUMMARY
-          echo "https://balochscript.github.io/free-vpn-configs/subscription.txt" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt" >> $GITHUB_STEP_SUMMARY
