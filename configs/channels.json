@@ -1,0 +1,19 @@
+{
+  "telegram_channels": [
+    "mitivpn",
+    "Configir98",
+    "VIPV2rayNGNP",
+    "saministamm",
+    "zhw_x_club",
+    "blackRay",
+    "AmyraxVPN"
+  ],
+  "supported_protocols": ["vless", "ss", "shadowsocks", "socks"],
+  "test_settings": {
+    "concurrent_tests": 20,
+    "connection_timeout": 15,
+    "volume_test_enabled": true,
+    "min_volume_mb": 5,
+    "max_messages_per_channel": 100
+  }
+}
