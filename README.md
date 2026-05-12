@@ -130,7 +130,7 @@ python utils.py
 
 ## 📊 آمار
 
-![Update Status](https://github.com/YOUR_USERNAME/YOUR_REPO/workflows/Update%20Free%20VPN%20Configs/badge.svg)
+![Update Status](https://github.com/balochscript/free-vpn-configs/workflows/Update%20Free%20VPN%20Configs/badge.svg)
 
 - 🔄 **بروزرسانی خودکار**: هر ۴ ساعت یکبار
 - 📡 **کانال‌های تلگرام**: ۷ کانال فعال
