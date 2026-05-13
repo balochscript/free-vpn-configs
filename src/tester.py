@@ -15,33 +15,17 @@ class ConfigTester:
         self.base_port = 10800
         
         self.test_configs = {
-            'alive': {
-                'timeout': 45,
-                'test_url': 'https://www.google.com/generate_204',
-                'dns': '193.186.32.32',
-                'min_volume': 0,
-                'retry': 2
-            },
-            'volume': {
-                'timeout': 60,
-                'test_url': 'https://github.com/favicon.ico',
-                'dns': '193.186.32.32',
-                'min_volume': 50 * 1024,
-                'retry': 2
-            },
-            'iran': {
-                'timeout': 50,
-                'test_url': 'http://dl.bertina.ir/test/100KB.bin',
-                'dns': '193.186.32.32',
-                'min_volume': 80 * 1024,
-                'retry': 2
-            },
             'tcping': {
+                'timeout': 10,
+                'retry': 2,
+                'delay': 0.5
+            },
+            'realdelay': {
                 'timeout': 30,
                 'test_url': 'https://www.google.com/generate_204',
                 'dns': '193.186.32.32',
-                'min_volume': 0,
-                'retry': 1
+                'retry': 2,
+                'delay': 1
             }
         }
     
@@ -182,7 +166,7 @@ class ConfigTester:
         except:
             return (False, 0)
     
-    async def test_connection_simple(self, proxy_url: str, test_url: str, timeout: int) -> tuple:
+    async def test_real_delay(self, proxy_url: str, test_url: str, timeout: int) -> tuple:
         try:
             async with aiohttp.ClientSession() as session:
                 start_time = time.time()
@@ -197,142 +181,120 @@ class ConfigTester:
         except:
             return (False, 0)
     
-    async def test_config(self, config: dict, test_type: str = 'alive') -> Dict:
-        
+    async def test_config(self, config: dict, test_type: str = 'tcping') -> Dict:
         result = {
             'config': config,
             'alive': False,
-            'has_volume': False,
-            'speed_kbps': 0,
             'latency_ms': 0,
             'test_type': test_type
         }
         
-        test_settings = self.test_configs.get(test_type, self.test_configs['alive'])
+        test_settings = self.test_configs.get(test_type)
         
         if test_type == 'tcping':
-            is_alive, latency = await self.tcp_ping(
-                config['server'], 
-                config['port'], 
-                test_settings['timeout']
-            )
-            
-            if is_alive:
-                result['alive'] = True
-                result['latency_ms'] = latency
+            for attempt in range(test_settings['retry']):
+                is_alive, latency = await self.tcp_ping(
+                    config['server'], 
+                    config['port'], 
+                    test_settings['timeout']
+                )
+                
+                if is_alive:
+                    result['alive'] = True
+                    result['latency_ms'] = latency
+                    return result
+                
+                if attempt < test_settings['retry'] - 1:
+                    await asyncio.sleep(1)
             
             return result
         
-        port = self.base_port + (hash(f"{config['server']}:{config['port']}") % 5000)
-        
-        for attempt in range(test_settings['retry']):
-            try:
-                xray_config = self.create_xray_config(config, port, test_settings['dns'])
-                
-                if not xray_config:
-                    break
-                
-                with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-                    json.dump(xray_config, f)
-                    config_file = f.name
-                
-                process = subprocess.Popen(
-                    [self.xray_path, 'run', '-config', config_file],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL
-                )
-                
-                await asyncio.sleep(5)
-                
-                proxy_url = f"http://127.0.0.1:{port}"
-                
+        elif test_type == 'realdelay':
+            port = self.base_port + (hash(f"{config['server']}:{config['port']}") % 5000)
+            
+            for attempt in range(test_settings['retry']):
                 try:
-                    is_alive, latency = await self.test_connection_simple(
-                        proxy_url, 
-                        test_settings['test_url'], 
-                        30
+                    xray_config = self.create_xray_config(config, port, test_settings['dns'])
+                    
+                    if not xray_config:
+                        break
+                    
+                    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+                        json.dump(xray_config, f)
+                        config_file = f.name
+                    
+                    process = subprocess.Popen(
+                        [self.xray_path, 'run', '-config', config_file],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
                     )
+                    
+                    await asyncio.sleep(4)
+                    
+                    proxy_url = f"http://127.0.0.1:{port}"
+                    
+                    is_alive, latency = await self.test_real_delay(
+                        proxy_url,
+                        test_settings['test_url'],
+                        test_settings['timeout']
+                    )
+                    
+                    process.kill()
+                    process.wait()
+                    
+                    try:
+                        os.unlink(config_file)
+                    except:
+                        pass
                     
                     if is_alive:
                         result['alive'] = True
                         result['latency_ms'] = latency
-                        
-                        if test_settings['min_volume'] > 0:
-                            try:
-                                async with aiohttp.ClientSession() as session:
-                                    start_download = time.time()
-                                    downloaded = 0
-                                    
-                                    async with session.get(
-                                        test_settings['test_url'],
-                                        proxy=proxy_url,
-                                        timeout=aiohttp.ClientTimeout(total=test_settings['timeout']),
-                                        ssl=False
-                                    ) as response:
-                                        if response.status == 200:
-                                            async for chunk in response.content.iter_chunked(8192):
-                                                downloaded += len(chunk)
-                                                if downloaded >= test_settings['min_volume']:
-                                                    break
-                                            
-                                            duration = time.time() - start_download
-                                            
-                                            if downloaded >= test_settings['min_volume'] and duration > 0:
-                                                result['has_volume'] = True
-                                                result['speed_kbps'] = int((downloaded / 1024) / duration)
-                            except:
-                                pass
-                        
+                        return result
+                    
+                    if attempt < test_settings['retry'] - 1:
+                        await asyncio.sleep(2)
+                
+                except Exception:
+                    try:
                         process.kill()
                         process.wait()
-                        
-                        try:
-                            os.unlink(config_file)
-                        except:
-                            pass
-                        
-                        return result
-                
-                except:
-                    pass
-                
-                process.kill()
-                process.wait()
-                
-                try:
-                    os.unlink(config_file)
-                except:
-                    pass
-                
-                if attempt < test_settings['retry'] - 1:
-                    await asyncio.sleep(2)
+                        os.unlink(config_file)
+                    except:
+                        pass
+                    
+                    if attempt < test_settings['retry'] - 1:
+                        await asyncio.sleep(2)
+                    continue
             
-            except Exception as e:
-                if attempt < test_settings['retry'] - 1:
-                    await asyncio.sleep(2)
-                continue
+            return result
         
         return result
     
-    async def test_all(self, configs: list, test_type: str = 'alive', max_concurrent: int = 6) -> List[Dict]:
+    async def test_all(self, configs: list, test_type: str = 'tcping', max_concurrent: int = 10) -> List[Dict]:
         
-        print(f"\n🧪 Testing {len(configs)} configs (Type: {test_type.upper()})")
+        titles = {
+            'tcping': '⚡ TCPing Test',
+            'realdelay': '🕐 Real Delay Test'
+        }
+        
+        print(f"\n{titles.get(test_type, 'Test')}: {len(configs)} configs")
         print(f"   Settings: {self.test_configs[test_type]}")
         print(f"   Concurrent: {max_concurrent}")
         print("=" * 70)
         
         semaphore = asyncio.Semaphore(max_concurrent)
+        test_settings = self.test_configs[test_type]
         
         async def test_with_semaphore(idx, config):
             async with semaphore:
+                await asyncio.sleep(test_settings.get('delay', 0))
+                
                 print(f"  [{idx}/{len(configs)}] Testing {config['server']}:{config['port']}")
                 result = await self.test_config(config, test_type)
                 
                 if result['alive']:
-                    if result['has_volume']:
-                        print(f"    ✅ Alive + Volume ({result['speed_kbps']} KB/s, {result['latency_ms']}ms)")
-                    else:
-                        print(f"    ✅ Alive ({result['latency_ms']}ms)")
+                    print(f"    ✅ Alive ({result['latency_ms']}ms)")
                 else:
                     print(f"    ❌ Failed")
                 
@@ -342,13 +304,15 @@ class ConfigTester:
         results = await asyncio.gather(*tasks)
         
         alive_results = [r for r in results if r['alive']]
-        volume_results = [r for r in results if r['has_volume']]
         
         print("\n" + "=" * 70)
         print(f"📊 Results ({test_type.upper()}):")
-        print(f"   Total tested: {len(results)}")
-        print(f"   Alive: {len(alive_results)}")
-        print(f"   With volume: {len(volume_results)}")
+        print(f"   Total: {len(results)} | Alive: {len(alive_results)} | Failed: {len(results) - len(alive_results)}")
+        
+        if alive_results:
+            avg_latency = sum(r['latency_ms'] for r in alive_results) // len(alive_results)
+            print(f"   Average Latency: {avg_latency}ms")
+        
         print("=" * 70)
         
         return results
@@ -373,8 +337,11 @@ async def main():
     
     tester = ConfigTester()
     
-    test_type = os.getenv('TEST_TYPE', 'alive')
-    concurrent = min(settings['test_settings'].get('concurrent_tests', 6), 6)
+    test_type = os.getenv('TEST_TYPE', 'tcping')
+    concurrent = settings['test_settings'].get('concurrent_tests', 10)
+    
+    if test_type == 'realdelay':
+        concurrent = min(concurrent, 6)
     
     results = await tester.test_all(configs, test_type, concurrent)
     
@@ -383,7 +350,7 @@ async def main():
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
     
-    print(f"\n✅ Saved results to: tested_{test_type}.json")
+    print(f"\n✅ Saved to: tested_{test_type}.json")
 
 
 if __name__ == '__main__':
