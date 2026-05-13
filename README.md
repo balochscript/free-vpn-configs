@@ -219,95 +219,6 @@ Port: 10808
 
 ---
 
-## 📊 آمار پروژه
-
-### 📈 منابع
-
-این پروژه از **14 کانال تلگرام** کانفیگ جمع‌آوری می‌کند:
-
-| کانال | لینک | وضعیت |
-|-------|------|-------|
-| Miti VPN | [@mitivpn](https://t.me/mitivpn) | ✅ فعال |
-| Config IR 98 | [@Configir98](https://t.me/Configir98) | ✅ فعال |
-| VIP V2Ray | [@VIPV2rayNGNP](https://t.me/VIPV2rayNGNP) | ✅ فعال |
-| Saman Istamm | [@saministamm](https://t.me/saministamm) | ✅ فعال |
-| ZHW Club | [@zhw_x_club](https://t.me/zhw_x_club) | ✅ فعال |
-| Black Ray | [@blackRay](https://t.me/blackRay) | ✅ فعال |
-| Azad Internet | [@AzadInternet_TV](https://t.me/AzadInternet_TV) | ✅ فعال |
-| Proxy MTProto | [@proxymtprotoir](https://t.me/proxymtprotoir) | ✅ فعال |
-| Aaraz V2ray | [@AarazV2ray](https://t.me/AarazV2ray) | ✅ فعال |
-| V2ray English | [@V2rayEnglish](https://t.me/V2rayEnglish) | ✅ فعال |
-| V2 Psiphon | [@v2psiiphon](https://t.me/v2psiiphon) | ✅ فعال |
-| Kurd Config | [@KurdConfing](https://t.me/KurdConfing) | ✅ فعال |
-| VPN Jet | [@Vpn_jet7](https://t.me/Vpn_jet7) | ✅ فعال |
-| Filter Shekan | [@filtershekan_channel](https://t.me/filtershekan_channel) | ✅ فعال |
-
-🙏 **تشکر ویژه از ادمین‌های این کانال‌ها برای اشتراک‌گذاری رایگان**
-
----
-
-### 🌍 پروتکل‌های پشتیبانی شده
-
-- **VLESS** با Reality/TLS `~60%`
-- **VMess** `~20%`
-- **Shadowsocks** `~10%`
-- **Trojan** `~10%`
-
----
-
-### ⚙️ تنظیمات تست
-
-```json
-{
-  "concurrent_tests": 12,
-  "connection_timeout": 10,
-  "volume_test_enabled": true,
-  "min_volume_mb": 2,
-  "max_messages_per_channel": 100
-}
-```
-
----
-
-## 🔍 نحوه کار (Technical)
-
-این پروژه با GitHub Actions هر 5 ساعت اجرا می‌شود:
-
-### 1️⃣ مرحله Scraping
-- اسکن 100 پیام اخیر از هر کانال (14 کانال)
-- پارس فرمت‌های: `vless://`, `vmess://`, `ss://`, `trojan://`
-- حذف تکراری با `server:port`
-- تعداد تقریبی: 100-200 کانفیگ یونیک
-
-### 2️⃣ مرحله Testing
-
-**Test TCPing:**
-- اتصال مستقیم TCP به `server:port`
-- Timeout: 10 ثانیه
-- Retry: 2 بار
-- Concurrent: 12 همزمان
-- بدون نیاز به Xray
-- ⚡ خیلی سریع
-
-**Test RealDelay:**
-- اجرای Xray Core
-- درخواست HTTP به `https://www.google.com/generate_204`
-- DNS: `193.186.32.32` (برتینا)
-- Timeout: 30 ثانیه
-- Retry: 2 بار
-- Concurrent: 6 همزمان
-- 🎯 دقیق‌ترین روش
-
-### 3️⃣ مرحله Publishing
-- تبدیل به Base64
-- آپلود در GitHub Pages
-- ساخت صفحه HTML
-- ذخیره آمار JSON
-
-**⏱️ زمان کل:** 20-40 دقیقه
-
----
-
 ## 💡 سوالات متداول
 
 ### ❓ کدام لینک را استفاده کنم؟
@@ -534,56 +445,6 @@ Port: 10808
 
 ---
 
-## 🛠️ نصب محلی (پیشرفته)
-
-اگر می‌خواهید خودتان پروژه را اجرا کنید:
-
-### پیش‌نیازها
-
-- Python 3.10+
-- Xray-core
-- حساب Telegram API
-
-### مراحل
-
-**1. Clone:**
-
-```bash
-git clone https://github.com/balochscript/free-vpn-configs.git
-cd free-vpn-configs
-```
-
-**2. نصب:**
-
-```bash
-pip install -r requirements.txt
-```
-
-**3. تنظیمات:**
-
-در `configs/channels.json` کانال‌های مورد نظر را اضافه کنید.
-
-**4. Telegram Session:**
-
-```bash
-cd src
-python scraper.py
-```
-
-اطلاعات API تلگرام را وارد کنید.
-
-**5. اجرا:**
-
-```bash
-python scraper.py    # جمع‌آوری
-python recent_configs.py    # استخراج اخیر
-TEST_TYPE=tcping python tester.py    # تست TCPing
-TEST_TYPE=realdelay python tester.py    # تست RealDelay
-python utils.py    # ساخت subscription
-```
-
----
-
 ## 📜 مجوز
 
 **MIT License** - استفاده آزاد برای همه
@@ -622,8 +483,8 @@ python utils.py    # ساخت subscription
 
 اگر این پروژه برایتان **مفید** بود:
 
-1. ⭐ **یک Star بدهید** (بالای صفحه)
-2. 🔄 **با دوستان به اشتراک بگذارید**
+1. ⭐ **یک Star بدهید** (بالای صفحه/حتما ستاره را بزنید)
+2. 🔄 **با دوستان خود به اشتراک بگذارید و تنها خوری نکنید**
 3. 🐛 **باگ‌ها را گزارش کنید**
 4. 💡 **ایده‌های خود را مطرح کنید**
 5. 🤝 **در توسعه مشارکت کنید**
@@ -645,11 +506,11 @@ python utils.py    # ساخت subscription
 
 <div align="center">
 
-## 🌟 Made with ❤️ for Free Internet
+## 🌟 Made with ❤️ for Free Internet from Balochistan
 
 ### 🇮🇷 زنده باد ایران اسلامی | زنده باد بلوچستان 🦁
 
-**نسخه 3.0** | **2025**
+**نسخه 1.0** | **2025**
 
 **دسترسی آزاد به اطلاعات حق همه است**
 
