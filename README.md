@@ -7,7 +7,7 @@
 
 <div align="center">
 
-### 🇮🇷 زنده باد جمهوری اسلامی ایران | زنده باد بلوچستان 🦁
+### 🇮🇷 زنده باد ایران اسلامی | زنده باد بلوچستان 🦁
 
 </div>
 
@@ -35,7 +35,6 @@ https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscri
 - **مناسب برای:** فیلتر سریع کانفیگ‌ها
 - **روش تست:** فقط اتصال TCP (10 ثانیه)
 - **ویژگی:** سریع‌ترین روش، بدون Xray
-- **تعداد تقریبی:** 40-60 کانفیگ
 
 ---
 
@@ -48,7 +47,6 @@ https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscri
 - **مناسب برای:** استفاده روزمره، کیفیت بالا
 - **روش تست:** HTTP واقعی با Google + DNS برتینا
 - **ویژگی:** تاخیر دقیق (میلی‌ثانیه)، تست کامل
-- **تعداد تقریبی:** 20-40 کانفیگ
 - **DNS برتینا:** `193.186.32.32`
 - **💡 پیشنهاد می‌شود!**
 
@@ -83,7 +81,7 @@ https://balochscript.github.io/free-vpn-configs/
 
 ## 🔧 راهنمای استفاده
 
-### 📲 نصب در V2rayNG (Android)
+### 📲 روش 1: نصب ساده در V2rayNG (Android)
 
 **گام 1: نصب اپلیکیشن**
 - V2rayNG را از [Google Play](https://play.google.com/store/apps/details?id=com.v2ray.ang) یا [GitHub](https://github.com/2dust/v2rayNG/releases) دانلود کنید
@@ -91,24 +89,107 @@ https://balochscript.github.io/free-vpn-configs/
 **گام 2: افزودن اشتراک**
 1. اپ را باز کنید
 2. دکمه `+` (بالا سمت راست) را بزنید
-3. گزینه **"Import config from Clipboard"** را بزنید
-4. یکی از لینک‌های بالا را کپی کنید
-5. دوباره دکمه `+` → **"Subscribe"** را بزنید
-6. در قسمت **Remarks** یک نام دلخواه بزنید
-7. در قسمت **URL** لینک کپی شده را Paste کنید
-8. روی ✅ بزنید
+3. گزینه **"Subscribe"** را انتخاب کنید
+4. در قسمت **Remarks** یک نام دلخواه بنویسید (مثلاً `Free VPN`)
+5. در قسمت **URL** یکی از لینک‌های بالا را Paste کنید
+6. روی ✅ بزنید
 
 **گام 3: بروزرسانی و اتصال**
 1. روی `⋮` کنار اشتراک بزنید
 2. **"Update subscription"** را بزنید
 3. یک کانفیگ با پینگ کم انتخاب کنید
-4. دکمه **"Connect"** را بزنید
+4. دکمه پایین صفحه را بزنید تا متصل شوید
 
 ✅ **متصل شدید!**
 
 ---
 
-### 🍎 نصب در V2Box/Shadowrocket (iOS)
+### 🚀 روش 2: ترکیب V2rayNG + Psiphon (پیشنهاد ویژه)
+
+**این روش حجم رایگان Psiphon را برای تلگرام و سایر برنامه‌ها فعال می‌کند**
+
+**در اکثر نقاط با اینترنت ایرانسل و همراه اول تست شده و کار می‌کند.**
+
+#### قسمت A: تنظیم V2rayNG
+
+**1. تنظیمات Core:**
+- وارد V2rayNG شوید
+- منوی `☰` (سه خط) → **Settings**
+- پیدا کردن **Core Settings**
+- تنظیم پورت پروکسی:
+```
+Local proxy port: 10808
+```
+
+**2. تنظیمات Advanced:**
+- در همان صفحه Settings
+- قسمت **Advanced Settings**
+- تغییر حالت از VPN به Proxy:
+```
+Mode: Proxy only
+```
+- دکمه **OK** را بزنید
+
+**3. اتصال به کانفیگ:**
+- به صفحه اصلی برگردید
+- یک کانفیگ از اشتراک انتخاب کنید
+- دکمه اتصال را بزنید (باید وصل شود)
+
+---
+
+#### قسمت B: تنظیم Psiphon
+
+**1. دانلود Psiphon:**
+- [Psiphon Pro](https://psiphon.ca/en/download.html) را نصب کنید
+
+**2. تنظیمات VPN:**
+- Psiphon → **Options**
+- قسمت **VPN Settings**:
+  - ✅ فعال کنید: `Only tunnel selected apps`
+  - روی **Select apps** بزنید
+  - از لیست **تلگرام** را تیک بزنید
+  - برنامه‌های دیگر (اختیاری): اینستاگرام، واتساپ، ...
+  - ⚠️ **V2rayNG را تیک نزنید!**
+
+**3. تنظیمات Proxy:**
+- یک قدم برگردید
+- قسمت **Proxy Settings**:
+  - ✅ فعال کنید: `Connect through an HTTP Proxy`
+  - انتخاب کنید: `Use the following settings`
+  - وارد کنید:
+```
+Host address: 127.0.0.1
+Port: 10808
+```
+
+**4. اتصال نهایی:**
+- روی دکمه **Start** بزنید
+- چند دقیقه صبر کنید تا متصل شود
+- ✅ تمام!
+
+---
+
+#### ✅ نتیجه نهایی
+
+**مسیر اتصال:**
+```
+تلگرام → Psiphon (حجم رایگان) → V2rayNG → اینترنت
+```
+
+**مزایا:**
+- 🎉 تلگرام و برنامه‌های انتخابی از حجم رایگان Psiphon استفاده می‌کنند
+- ⚡ سایر برنامه‌ها از اینترنت عادی استفاده می‌کنند (بدون VPN)
+- 💰 صرفه‌جویی در حجم اینترنت
+- 🚀 سرعت بالا برای تلگرام
+
+**⚠️ نکته:** این تنظیمات فقط یک‌بار لازم است. بعد از این:
+1. V2rayNG را به کانفیگ وصل کنید
+2. Psiphon را Start کنید
+3. ✅ آماده!
+
+---
+
+### 🍎 روش 3: نصب در iOS
 
 **V2Box (رایگان):**
 1. از App Store نصب کنید
@@ -117,17 +198,17 @@ https://balochscript.github.io/free-vpn-configs/
 4. Update → انتخاب کانفیگ → Connect
 
 **Shadowrocket:**
-1. از App Store خریداری کنید
+1. از App Store خریداری کنید ($2.99)
 2. `+` (بالا سمت راست)
 3. **Type:** Subscribe
 4. **URL:** لینک را Paste کنید
-5. **Remarks:** یک نام دلخواه
-6. Done → اتصال
+5. Done → اتصال
 
 ---
 
-### 💻 نصب در V2rayN (Windows)
+### 💻 روش 4: نصب در Windows
 
+**V2rayN:**
 1. [V2rayN](https://github.com/2dust/v2rayN/releases) را دانلود و نصب کنید
 2. منوی **Subscription** → **Subscribe setting**
 3. **Add** را بزنید
@@ -140,27 +221,51 @@ https://balochscript.github.io/free-vpn-configs/
 
 ## 📊 آمار پروژه
 
-### 📈 آمار تقریبی (بروزرسانی هر 5 ساعت)
+### 📈 منابع
 
-| نوع | تعداد | توضیحات |
-|-----|-------|---------|
-| 📥 جمع‌آوری شده | 80-150 | از 7+ کانال تلگرام |
-| ⚡ TCPing | 40-60 | تست TCP موفق |
-| 🕐 Real Delay | 20-40 | تست HTTP موفق |
-| 🆕 Recent | 100 | بدون فیلتر |
+این پروژه از **14 کانال تلگرام** کانفیگ جمع‌آوری می‌کند:
 
-### 🌍 پروتکل‌ها
+| کانال | لینک | وضعیت |
+|-------|------|-------|
+| Miti VPN | [@mitivpn](https://t.me/mitivpn) | ✅ فعال |
+| Config IR 98 | [@Configir98](https://t.me/Configir98) | ✅ فعال |
+| VIP V2Ray | [@VIPV2rayNGNP](https://t.me/VIPV2rayNGNP) | ✅ فعال |
+| Saman Istamm | [@saministamm](https://t.me/saministamm) | ✅ فعال |
+| ZHW Club | [@zhw_x_club](https://t.me/zhw_x_club) | ✅ فعال |
+| Black Ray | [@blackRay](https://t.me/blackRay) | ✅ فعال |
+| Azad Internet | [@AzadInternet_TV](https://t.me/AzadInternet_TV) | ✅ فعال |
+| Proxy MTProto | [@proxymtprotoir](https://t.me/proxymtprotoir) | ✅ فعال |
+| Aaraz V2ray | [@AarazV2ray](https://t.me/AarazV2ray) | ✅ فعال |
+| V2ray English | [@V2rayEnglish](https://t.me/V2rayEnglish) | ✅ فعال |
+| V2 Psiphon | [@v2psiiphon](https://t.me/v2psiiphon) | ✅ فعال |
+| Kurd Config | [@KurdConfing](https://t.me/KurdConfing) | ✅ فعال |
+| VPN Jet | [@Vpn_jet7](https://t.me/Vpn_jet7) | ✅ فعال |
+| Filter Shekan | [@filtershekan_channel](https://t.me/filtershekan_channel) | ✅ فعال |
+
+🙏 **تشکر ویژه از ادمین‌های این کانال‌ها برای اشتراک‌گذاری رایگان**
+
+---
+
+### 🌍 پروتکل‌های پشتیبانی شده
 
 - **VLESS** با Reality/TLS `~60%`
 - **VMess** `~20%`
 - **Shadowsocks** `~10%`
 - **Trojan** `~10%`
 
-### 📡 کانال‌های منبع
+---
 
-`@mitivpn` • `@Configir98` • `@VIPV2rayNGNP` • `@saministamm` • `@zhw_x_club` • `@blackRay` • `@AmyraxVPN`
+### ⚙️ تنظیمات تست
 
-🙏 **تشکر ویژه از ادمین‌های این کانال‌ها برای اشتراک‌گذاری رایگان**
+```json
+{
+  "concurrent_tests": 12,
+  "connection_timeout": 10,
+  "volume_test_enabled": true,
+  "min_volume_mb": 2,
+  "max_messages_per_channel": 100
+}
+```
 
 ---
 
@@ -169,9 +274,10 @@ https://balochscript.github.io/free-vpn-configs/
 این پروژه با GitHub Actions هر 5 ساعت اجرا می‌شود:
 
 ### 1️⃣ مرحله Scraping
-- اسکن 100 پیام اخیر از هر کانال
+- اسکن 100 پیام اخیر از هر کانال (14 کانال)
 - پارس فرمت‌های: `vless://`, `vmess://`, `ss://`, `trojan://`
 - حذف تکراری با `server:port`
+- تعداد تقریبی: 100-200 کانفیگ یونیک
 
 ### 2️⃣ مرحله Testing
 
@@ -179,6 +285,7 @@ https://balochscript.github.io/free-vpn-configs/
 - اتصال مستقیم TCP به `server:port`
 - Timeout: 10 ثانیه
 - Retry: 2 بار
+- Concurrent: 12 همزمان
 - بدون نیاز به Xray
 - ⚡ خیلی سریع
 
@@ -188,12 +295,14 @@ https://balochscript.github.io/free-vpn-configs/
 - DNS: `193.186.32.32` (برتینا)
 - Timeout: 30 ثانیه
 - Retry: 2 بار
+- Concurrent: 6 همزمان
 - 🎯 دقیق‌ترین روش
 
 ### 3️⃣ مرحله Publishing
 - تبدیل به Base64
 - آپلود در GitHub Pages
 - ساخت صفحه HTML
+- ذخیره آمار JSON
 
 **⏱️ زمان کل:** 20-40 دقیقه
 
@@ -242,6 +351,7 @@ https://balochscript.github.io/free-vpn-configs/
 - سرعت 3ms برای cache
 - 100% پایداری
 - رایگان برای همیشه
+- وب‌سایت: [bertina.ir/dns](https://www.bertina.ir/dns)
 
 **مزیت:** دسترسی به سایت‌های بین‌المللی بدون VPN (برای برخی سایت‌ها)
 
@@ -257,7 +367,11 @@ https://balochscript.github.io/free-vpn-configs/
    - Settings → Routing → Domain Strategy → `AsIs`
    - Settings → Core Settings → Enable Mux ✅
 
-3. **بهینه‌سازی:**
+3. **استفاده از ترکیب:**
+   - روش V2rayNG + Psiphon را امتحان کنید
+   - برای تلگرام سرعت خوبی دارد
+
+4. **بهینه‌سازی:**
    - در ساعات کم‌تردد استفاده کنید
    - چند کانفیگ تست کنید
    - از سرورهای نزدیک‌تر استفاده کنید
@@ -267,6 +381,7 @@ https://balochscript.github.io/free-vpn-configs/
 **خودکار:**
 - هر 5 ساعت یکبار
 - توسط GitHub Actions
+- زمان دقیق در سایت نمایش داده می‌شود
 
 **دستی:**
 - V2rayNG: `⋮` کنار اشتراک → Update subscription
@@ -289,6 +404,7 @@ https://balochscript.github.io/free-vpn-configs/
 - تماشای ویدیو
 - دانلود فایل
 - دسترسی به سایت‌های فیلتر شده
+- شبکه‌های اجتماعی (بدون ورود به حساب‌های مهم)
 
 **💡 توصیه:** برای امنیت بیشتر از VPN پولی استفاده کنید.
 
@@ -316,11 +432,28 @@ https://balochscript.github.io/free-vpn-configs/
 
 **بله!** ولی:
 
+**روش 1: مستقیم**
 - Proxy تلگرام را روی System خالی بگذارید
 - V2rayNG را اجرا کنید
 - تلگرام از طریق VPN سیستم متصل می‌شود
 
+**روش 2: ترکیبی (پیشنهاد)** ⭐
+- از روش V2rayNG + Psiphon استفاده کنید
+- حجم رایگان Psiphon برای تلگرام
+- سرعت و پایداری بیشتر
+
 **نکته:** برای صرفه‌جویی در حجم VPN، از MTProto Proxy اختصاصی تلگرام استفاده کنید.
+
+### ❓ آیا در ایرانسل/همراه اول کار می‌کند؟
+
+**بله!** به خصوص با روش ترکیبی:
+
+- ✅ **ایرانسل:** کار می‌کند
+- ✅ **همراه اول:** کار می‌کند
+- ✅ **رایتل:** کار می‌کند
+- ⚠️ **شاتل موبایل:** ممکن است محدودیت داشته باشد
+
+**💡 توصیه:** روش V2rayNG + Psiphon را امتحان کنید.
 
 ---
 
@@ -348,13 +481,36 @@ https://balochscript.github.io/free-vpn-configs/
 ```json
 {
   "telegram_channels": [
-    {
-      "username": "YOUR_CHANNEL",
-      "limit": 100
-    }
-  ]
+    "mitivpn",
+    "Configir98",
+    "VIPV2rayNGNP",
+    "saministamm",
+    "zhw_x_club",
+    "blackRay",
+    "AzadInternet_TV",
+    "proxymtprotoir",
+    "AarazV2ray",
+    "V2rayEnglish",
+    "v2psiiphon",
+    "KurdConfing",
+    "Vpn_jet7",
+    "filtershekan_channel"
+  ],
+  "supported_protocols": ["vless", "vmess", "ss", "shadowsocks", "trojan"],
+  "test_settings": {
+    "concurrent_tests": 12,
+    "connection_timeout": 10,
+    "volume_test_enabled": true,
+    "min_volume_mb": 2,
+    "max_messages_per_channel": 100
+  }
 }
 ```
+
+**برای افزودن کانال:**
+1. نام کانال را به لیست `telegram_channels` اضافه کنید
+2. Pull Request بفرستید
+3. بعد از بررسی، merge می‌شود
 
 سپس Pull Request بفرستید.
 
@@ -374,6 +530,7 @@ https://balochscript.github.io/free-vpn-configs/
 - پیشنهاد ویژگی جدید
 - سوال فنی
 - بحث عمومی
+- کمک به دیگران
 
 ---
 
@@ -456,7 +613,8 @@ python utils.py    # ساخت subscription
 - 🌍 **DNS برتینا:** [bertina.ir/dns](https://www.bertina.ir/dns)
 - 📱 **V2rayNG:** [GitHub](https://github.com/2dust/v2rayNG)
 - 💻 **V2rayN:** [GitHub](https://github.com/2dust/v2rayN)
-- 📚 **راهنمای V2Ray:** [v2ray.com](https://www.v2ray.com)
+- 📚 **Psiphon:** [psiphon.ca](https://psiphon.ca)
+- 📖 **راهنمای V2Ray:** [v2ray.com](https://www.v2ray.com)
 
 ---
 
@@ -489,7 +647,7 @@ python utils.py    # ساخت subscription
 
 ## 🌟 Made with ❤️ for Free Internet
 
-### 🇮🇷 زنده باد جمهوری اسلامی ایران | زنده باد بلوچستان 🦁
+### 🇮🇷 زنده باد ایران اسلامی | زنده باد بلوچستان 🦁
 
 **نسخه 3.0** | **2025**
 
@@ -502,3 +660,5 @@ python utils.py    # ساخت subscription
 **⭐ اگر مفید بود، حتماً Star بدهید!**
 
 </div>
+
+---
