@@ -52,9 +52,11 @@ jobs:
       - name: Scrape Telegram channels
         env:
           PYROGRAM_SESSION: ${{ secrets.PYROGRAM_SESSION }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}        # ✅ اضافه شد
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}    # ✅ اضافه شد
         run: |
           cd src
-          timeout 10m python scraper.py || echo "Scraper timeout"
+          timeout 10m python scraper.py || echo "⚠️ Scraper timeout"
           
           if [ ! -f ../raw_configs.json ]; then
             echo "[]" > ../raw_configs.json
@@ -68,7 +70,7 @@ jobs:
         if: env.SCRAPED_COUNT > 0
         run: |
           cd src
-          timeout 15m python tester.py || echo "Tester timeout"
+          timeout 15m python tester.py || echo "⚠️ Tester timeout"
           
           if [ ! -f ../working_configs.json ]; then
             echo "[]" > ../working_configs.json
@@ -101,6 +103,13 @@ jobs:
             echo "⚠️ subscription.txt not found"
           fi
           
+          if [ -f src/subscription-all.txt ]; then
+            cp src/subscription-all.txt deploy/
+            echo "✅ Copied subscription-all.txt"
+          else
+            echo "⚠️ subscription-all.txt not found"
+          fi
+          
           if [ -f src/index.html ]; then
             cp src/index.html deploy/
             echo "✅ Copied index.html"
@@ -123,7 +132,7 @@ jobs:
           publish_dir: ./deploy
           publish_branch: gh-pages
           force_orphan: true
-          commit_message: '🔄 Update configs'
+          commit_message: '🔄 Update configs - ${{ env.SCRAPED_COUNT }} scraped, ${{ env.WORKING_COUNT }} working'
       
       - name: Build summary
         run: |
@@ -133,10 +142,22 @@ jobs:
           echo "- 📥 Scraped: ${SCRAPED_COUNT:-0} configs" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Working: ${WORKING_COUNT:-0} configs" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔗 Subscription Links" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Raw link (recommended):" >> $GITHUB_STEP_SUMMARY
-          echo "https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription.txt" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Website:" >> $GITHUB_STEP_SUMMARY
-          echo "https://balochscript.github.io/free-vpn-configs/" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${WORKING_COUNT:-0}" -gt 0 ]; then
+            echo "### 🔗 Subscription Links" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**With Volume (Recommended):**" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription.txt" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**All Alive Configs:**" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-all.txt" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Web Interface:**" >> $GITHUB_STEP_SUMMARY
+            echo "https://${{ github.repository_owner }}.github.io/free-vpn-configs/" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ No working configs found in this run" >> $GITHUB_STEP_SUMMARY
+          fi
