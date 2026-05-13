@@ -494,7 +494,7 @@ Port: 10808
     "v2psiiphon",
     "KurdConfing",
     "Vpn_jet7",
-    "filtershekan_channel"
+    "Channel Id آیدی کانال را اینجا بگذارید"
   ],
   "supported_protocols": ["vless", "vmess", "ss", "shadowsocks", "trojan"],
   "test_settings": {
