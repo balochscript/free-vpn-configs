@@ -61,13 +61,13 @@ jobs:
           cd src
           python recent_configs.py
       
-      - name: ⚡ Test 1 - TCPing (Fast)
+      - name: ⚡ Test 1 - TCPing (Fast TCP Test)
         if: env.SCRAPED_COUNT > 0
         env:
           TEST_TYPE: tcping
         run: |
           cd src
-          timeout 15m python tester.py || echo "⏱️ Test timeout"
+          timeout 10m python tester.py || echo "⏱️ Test timeout"
           
           if [ ! -f ../tested_tcping.json ]; then
             echo "[]" > ../tested_tcping.json
@@ -77,53 +77,21 @@ jobs:
           echo "TCPING_COUNT=$COUNT" >> $GITHUB_ENV
           echo "⚡ TCPing: $COUNT"
       
-      - name: 🟢 Test 2 - Alive (HTTP)
+      - name: 🕐 Test 2 - Real Delay (HTTP with Xray)
         if: env.SCRAPED_COUNT > 0
         env:
-          TEST_TYPE: alive
-        run: |
-          cd src
-          timeout 20m python tester.py || echo "⏱️ Test timeout"
-          
-          if [ ! -f ../tested_alive.json ]; then
-            echo "[]" > ../tested_alive.json
-          fi
-          
-          COUNT=$(jq '[.[] | select(.alive == true)] | length' ../tested_alive.json)
-          echo "ALIVE_COUNT=$COUNT" >> $GITHUB_ENV
-          echo "🟢 Alive: $COUNT"
-      
-      - name: 📦 Test 3 - Volume (GitHub)
-        if: env.SCRAPED_COUNT > 0
-        env:
-          TEST_TYPE: volume
+          TEST_TYPE: realdelay
         run: |
           cd src
           timeout 25m python tester.py || echo "⏱️ Test timeout"
           
-          if [ ! -f ../tested_volume.json ]; then
-            echo "[]" > ../tested_volume.json
+          if [ ! -f ../tested_realdelay.json ]; then
+            echo "[]" > ../tested_realdelay.json
           fi
           
-          COUNT=$(jq '[.[] | select(.has_volume == true)] | length' ../tested_volume.json)
-          echo "VOLUME_COUNT=$COUNT" >> $GITHUB_ENV
-          echo "📦 Volume: $COUNT"
-      
-      - name: 🇮🇷 Test 4 - Iran (Bertina)
-        if: env.SCRAPED_COUNT > 0
-        env:
-          TEST_TYPE: iran
-        run: |
-          cd src
-          timeout 20m python tester.py || echo "⏱️ Test timeout"
-          
-          if [ ! -f ../tested_iran.json ]; then
-            echo "[]" > ../tested_iran.json
-          fi
-          
-          COUNT=$(jq '[.[] | select(.has_volume == true)] | length' ../tested_iran.json)
-          echo "IRAN_COUNT=$COUNT" >> $GITHUB_ENV
-          echo "🇮🇷 Iran: $COUNT"
+          COUNT=$(jq '[.[] | select(.alive == true)] | length' ../tested_realdelay.json)
+          echo "REALDELAY_COUNT=$COUNT" >> $GITHUB_ENV
+          echo "🕐 RealDelay: $COUNT"
       
       - name: 📦 Generate subscription files
         run: |
@@ -134,7 +102,7 @@ jobs:
         run: |
           mkdir -p deploy
           
-          for file in subscription-tcping.txt subscription-alive.txt subscription-volume.txt subscription-iran.txt subscription-recent.txt index.html; do
+          for file in subscription-tcping.txt subscription-realdelay.txt subscription-recent.txt index.html; do
             if [ -f src/$file ]; then
               cp src/$file deploy/
               echo "✅ Copied $file"
@@ -146,9 +114,7 @@ jobs:
             "last_update": "$(date -u '+%Y-%m-%d %H:%M:%S UTC')",
             "scraped": ${SCRAPED_COUNT:-0},
             "tcping": ${TCPING_COUNT:-0},
-            "alive": ${ALIVE_COUNT:-0},
-            "volume": ${VOLUME_COUNT:-0},
-            "iran": ${IRAN_COUNT:-0},
+            "realdelay": ${REALDELAY_COUNT:-0},
             "recent": 100
           }
           EOF
@@ -163,7 +129,7 @@ jobs:
           publish_dir: ./deploy
           publish_branch: gh-pages
           force_orphan: true
-          commit_message: '🔄 Update: ${{ env.TCPING_COUNT }} tcping, ${{ env.ALIVE_COUNT }} alive, ${{ env.VOLUME_COUNT }} volume, ${{ env.IRAN_COUNT }} iran'
+          commit_message: '🔄 Update: ${{ env.TCPING_COUNT }} tcping | ${{ env.REALDELAY_COUNT }} realdelay | 100 recent'
       
       - name: 📊 Build summary
         run: |
@@ -177,43 +143,45 @@ jobs:
           | Type | Count | Description |
           |------|-------|-------------|
           | 📥 Scraped | ${SCRAPED_COUNT:-0} | Total configs from Telegram |
-          | ⚡ TCPing | ${TCPING_COUNT:-0} | TCP connection only (fastest) |
-          | 🟢 Alive | ${ALIVE_COUNT:-0} | HTTP connection test |
-          | 📦 Volume | ${VOLUME_COUNT:-0} | Downloaded 50KB+ from GitHub |
-          | 🇮🇷 Iran | ${IRAN_COUNT:-0} | Downloaded 80KB+ from Bertina (Iran DNS) |
-          | 🆕 Recent | 100 | Latest configs (no filter) |
+          | ⚡ TCPing | ${TCPING_COUNT:-0} | TCP connection test (fastest) |
+          | 🕐 RealDelay | ${REALDELAY_COUNT:-0} | HTTP test with real latency (best quality) |
+          | 🆕 Recent | 100 | Latest configs without any filter |
           
           ### 🔗 Subscription Links
           
-          **⚡ TCPing (Fastest - TCP only):**
+          **⚡ TCPing - سریع‌ترین (فقط TCP):**
           \`\`\`
           https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-tcping.txt
           \`\`\`
+          - تست سریع TCP connection
+          - Timeout: 10s
+          - Retry: 2x
           
-          **🟢 Alive (Fast - HTTP test):**
+          **🕐 RealDelay - بهترین کیفیت (تاخیر واقعی):**
           \`\`\`
-          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-alive.txt
+          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-realdelay.txt
           \`\`\`
+          - تست HTTP با Google
+          - DNS برتینا (193.186.32.32)
+          - Timeout: 30s
+          - Retry: 2x
           
-          **📦 Volume (Quality - GitHub download):**
-          \`\`\`
-          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-volume.txt
-          \`\`\`
-          
-          **🇮🇷 Iran (Best for Iran - Bertina DNS):**
-          \`\`\`
-          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-iran.txt
-          \`\`\`
-          
-          **🆕 Recent 100 (Untested - Latest):**
+          **🆕 Recent 100 - بدون فیلتر (جدیدترین‌ها):**
           \`\`\`
           https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-recent.txt
           \`\`\`
+          - 100 کانفیگ اخیر
+          - بدون تست
+          - ممکن است برخی کار نکنند
+          
+          ---
           
           **🌐 Web Interface:**
           https://${{ github.repository_owner }}.github.io/free-vpn-configs/
           
           ---
+          
+          **🇮🇷 زنده باد جمهوری اسلامی ایران | زنده باد بلوچستان 🦁**
           
           ✅ **All tests completed successfully!**
           EOF
