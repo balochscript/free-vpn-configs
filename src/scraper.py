@@ -7,14 +7,9 @@ from config_parser import ConfigParser
 
 class TelegramScraper:
     def __init__(self, session_string):
-        """
-        ساخت کلاینت Telegram با استفاده از environment variables
-        """
-        # ✅ خواندن از GitHub Secrets / Environment Variables
         api_id = os.getenv('TELEGRAM_API_ID')
         api_hash = os.getenv('TELEGRAM_API_HASH')
         
-        # بررسی وجود
         if not api_id:
             raise ValueError(
                 "❌ TELEGRAM_API_ID environment variable is not set!\n"
@@ -29,24 +24,22 @@ class TelegramScraper:
                 "Settings → Secrets and variables → Actions → New repository secret"
             )
         
-        # نمایش بخشی از API برای تأیید (امن)
         print(f"🔑 API ID: {api_id}")
         print(f"🔐 API Hash: {api_hash[:8]}...{api_hash[-4:]}")
         
-        # ساخت کلاینت Pyrogram
         self.app = Client(
             name="vpn_config_scraper",
             api_id=int(api_id),
             api_hash=api_hash,
             session_string=session_string,
             in_memory=True,
-            no_updates=True  # ✅ رفع خطای "Peer id invalid"
+            no_updates=True
         )
     
-    async def scrape_channel(self, channel: str, max_messages: int = 50) -> list:
-        """
-        استخراج کانفیگ از یک کانال تلگرام
-        """
+    async def scrape_channel(self, channel: str, max_messages: int = 100, protocols: list = None) -> list:
+        if protocols is None:
+            protocols = ['vless', 'vmess', 'ss', 'shadowsocks', 'trojan']
+        
         configs = []
         
         try:
@@ -56,14 +49,10 @@ class TelegramScraper:
             async for message in self.app.get_chat_history(f"@{channel}", limit=max_messages):
                 count += 1
                 
-                # ✅ بررسی هم text و هم caption
                 text_content = message.text or message.caption or ""
                 
                 if text_content:
-                    extracted = ConfigParser.extract_configs(
-                        text_content,
-                        ['vless', 'ss', 'shadowsocks', 'trojan']
-                    )
+                    extracted = ConfigParser.extract_configs(text_content, protocols)
                     
                     if extracted:
                         configs.extend(extracted)
@@ -74,7 +63,7 @@ class TelegramScraper:
         except FloodWait as e:
             print(f"  ⏳ FloodWait {e.value}s - waiting...")
             await asyncio.sleep(e.value)
-            return await self.scrape_channel(channel, max_messages)
+            return await self.scrape_channel(channel, max_messages, protocols)
         
         except ChannelPrivate:
             print(f"  ❌ Channel is private or you're not a member")
@@ -87,10 +76,7 @@ class TelegramScraper:
         
         return configs
     
-    async def scrape_all(self, channels: list, max_messages: int = 50) -> list:
-        """
-        استخراج کانفیگ از همه کانال‌ها
-        """
+    async def scrape_all(self, channels: list, max_messages: int = 100, protocols: list = None) -> list:
         all_configs = []
         
         print("🚀 Starting Telegram client...")
@@ -112,10 +98,9 @@ class TelegramScraper:
         
         for idx, channel in enumerate(channels, 1):
             print(f"\n[{idx}/{len(channels)}] Channel: @{channel}")
-            configs = await self.scrape_channel(channel, max_messages)
+            configs = await self.scrape_channel(channel, max_messages, protocols)
             all_configs.extend(configs)
             
-            # تاخیر بین کانال‌ها
             if idx < len(channels):
                 await asyncio.sleep(2)
         
@@ -134,9 +119,6 @@ class TelegramScraper:
 
 
 async def main():
-    """
-    تابع اصلی برای اجرای scraper
-    """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     config_path = os.path.join(current_dir, '..', 'configs', 'channels.json')
     
@@ -151,16 +133,15 @@ async def main():
         print(f"❌ Config file not found!")
         return
     
-    # خواندن تنظیمات
     with open(config_path, 'r', encoding='utf-8') as f:
         settings = json.load(f)
     
     print(f"✅ Config loaded successfully")
     print(f"   Channels: {len(settings['telegram_channels'])}")
+    print(f"   Protocols: {', '.join(settings['supported_protocols'])}")
     print(f"   Max messages per channel: {settings['test_settings']['max_messages_per_channel']}")
     print()
     
-    # بررسی Session
     session_string = os.getenv('PYROGRAM_SESSION')
     
     if not session_string:
@@ -171,16 +152,15 @@ async def main():
     print(f"✅ Session string found (length: {len(session_string)} chars)")
     print()
     
-    # شروع scraping
     try:
         scraper = TelegramScraper(session_string)
         
         configs = await scraper.scrape_all(
             settings['telegram_channels'],
-            settings['test_settings']['max_messages_per_channel']
+            settings['test_settings']['max_messages_per_channel'],
+            settings['supported_protocols']
         )
         
-        # ذخیره نتایج
         output_path = os.path.join(current_dir, '..', 'raw_configs.json')
         
         print(f"\n💾 Saving to: {output_path}")
@@ -190,7 +170,6 @@ async def main():
         
         print(f"✅ Successfully saved {len(configs)} configs")
         
-        # نمایش خلاصه پروتکل‌ها
         protocols = {}
         for config in configs:
             protocol = config.get('protocol', 'unknown')
