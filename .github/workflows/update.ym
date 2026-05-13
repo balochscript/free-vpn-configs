@@ -2,7 +2,7 @@ name: Update Free VPN Configs
 
 on:
   schedule:
-    - cron: '0 */5 * * *'  # هر 5 ساعت
+    - cron: '0 */5 * * *'
   workflow_dispatch:
   push:
     branches: [ main ]
@@ -14,7 +14,7 @@ on:
 jobs:
   update-configs:
     runs-on: ubuntu-latest
-    timeout-minutes: 60  # ✅ افزایش timeout
+    timeout-minutes: 60
     
     steps:
       - name: Checkout repository
@@ -39,7 +39,6 @@ jobs:
           rm -f Xray-linux-64.zip geoip.dat geosite.dat LICENSE README.md
           xray version
       
-      #================== SCRAPING ==================#
       - name: 📡 Scrape Telegram channels
         env:
           PYROGRAM_SESSION: ${{ secrets.PYROGRAM_SESSION }}
@@ -57,14 +56,28 @@ jobs:
           echo "SCRAPED_COUNT=$COUNT" >> $GITHUB_ENV
           echo "📥 Scraped: $COUNT configs"
       
-      #================== RECENT (75) ==================#
-      - name: 🆕 Extract recent 75 configs
+      - name: 🆕 Extract recent 100 configs
         run: |
           cd src
           python recent_configs.py
       
-      #================== TEST 1: ALIVE ==================#
-      - name: 🟢 Test 1 - Alive Only
+      - name: ⚡ Test 1 - TCPing (Fast)
+        if: env.SCRAPED_COUNT > 0
+        env:
+          TEST_TYPE: tcping
+        run: |
+          cd src
+          timeout 15m python tester.py || echo "⏱️ Test timeout"
+          
+          if [ ! -f ../tested_tcping.json ]; then
+            echo "[]" > ../tested_tcping.json
+          fi
+          
+          COUNT=$(jq '[.[] | select(.alive == true)] | length' ../tested_tcping.json)
+          echo "TCPING_COUNT=$COUNT" >> $GITHUB_ENV
+          echo "⚡ TCPing: $COUNT"
+      
+      - name: 🟢 Test 2 - Alive (HTTP)
         if: env.SCRAPED_COUNT > 0
         env:
           TEST_TYPE: alive
@@ -80,8 +93,7 @@ jobs:
           echo "ALIVE_COUNT=$COUNT" >> $GITHUB_ENV
           echo "🟢 Alive: $COUNT"
       
-      #================== TEST 2: VOLUME ==================#
-      - name: 📦 Test 2 - Volume (100KB)
+      - name: 📦 Test 3 - Volume (GitHub)
         if: env.SCRAPED_COUNT > 0
         env:
           TEST_TYPE: volume
@@ -97,8 +109,7 @@ jobs:
           echo "VOLUME_COUNT=$COUNT" >> $GITHUB_ENV
           echo "📦 Volume: $COUNT"
       
-      #================== TEST 3: IRAN ==================#
-      - name: 🇮🇷 Test 3 - Iran Optimized
+      - name: 🇮🇷 Test 4 - Iran (Bertina)
         if: env.SCRAPED_COUNT > 0
         env:
           TEST_TYPE: iran
@@ -110,38 +121,35 @@ jobs:
             echo "[]" > ../tested_iran.json
           fi
           
-          COUNT=$(jq '[.[] | select(.alive == true)] | length' ../tested_iran.json)
+          COUNT=$(jq '[.[] | select(.has_volume == true)] | length' ../tested_iran.json)
           echo "IRAN_COUNT=$COUNT" >> $GITHUB_ENV
           echo "🇮🇷 Iran: $COUNT"
       
-      #================== GENERATE SUBSCRIPTIONS ==================#
       - name: 📦 Generate subscription files
         run: |
           cd src
           python utils.py
       
-      #================== DEPLOY ==================#
       - name: 🚀 Prepare deployment
         run: |
           mkdir -p deploy
           
-          # کپی فایل‌های subscription
-          for file in subscription-alive.txt subscription-volume.txt subscription-iran.txt subscription-recent.txt index.html; do
+          for file in subscription-tcping.txt subscription-alive.txt subscription-volume.txt subscription-iran.txt subscription-recent.txt index.html; do
             if [ -f src/$file ]; then
               cp src/$file deploy/
               echo "✅ Copied $file"
             fi
           done
           
-          # ساخت فایل stats
           cat > deploy/stats.json << EOF
           {
             "last_update": "$(date -u '+%Y-%m-%d %H:%M:%S UTC')",
             "scraped": ${SCRAPED_COUNT:-0},
+            "tcping": ${TCPING_COUNT:-0},
             "alive": ${ALIVE_COUNT:-0},
             "volume": ${VOLUME_COUNT:-0},
             "iran": ${IRAN_COUNT:-0},
-            "recent": 75
+            "recent": 100
           }
           EOF
           
@@ -155,9 +163,8 @@ jobs:
           publish_dir: ./deploy
           publish_branch: gh-pages
           force_orphan: true
-          commit_message: '🔄 Update: ${{ env.ALIVE_COUNT }} alive, ${{ env.VOLUME_COUNT }} volume, ${{ env.IRAN_COUNT }} iran'
+          commit_message: '🔄 Update: ${{ env.TCPING_COUNT }} tcping, ${{ env.ALIVE_COUNT }} alive, ${{ env.VOLUME_COUNT }} volume, ${{ env.IRAN_COUNT }} iran'
       
-      #================== SUMMARY ==================#
       - name: 📊 Build summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << EOF
@@ -170,29 +177,35 @@ jobs:
           | Type | Count | Description |
           |------|-------|-------------|
           | 📥 Scraped | ${SCRAPED_COUNT:-0} | Total configs from Telegram |
-          | 🟢 Alive | ${ALIVE_COUNT:-0} | Passed connection test (30s timeout) |
-          | 📦 Volume | ${VOLUME_COUNT:-0} | Downloaded 100KB+ successfully |
-          | 🇮🇷 Iran | ${IRAN_COUNT:-0} | Optimized for Iran (Bertina DNS) |
-          | 🆕 Recent | 75 | Latest configs (no filter) |
+          | ⚡ TCPing | ${TCPING_COUNT:-0} | TCP connection only (fastest) |
+          | 🟢 Alive | ${ALIVE_COUNT:-0} | HTTP connection test |
+          | 📦 Volume | ${VOLUME_COUNT:-0} | Downloaded 50KB+ from GitHub |
+          | 🇮🇷 Iran | ${IRAN_COUNT:-0} | Downloaded 80KB+ from Bertina (Iran DNS) |
+          | 🆕 Recent | 100 | Latest configs (no filter) |
           
           ### 🔗 Subscription Links
           
-          **🟢 Alive Only (Fast):**
+          **⚡ TCPing (Fastest - TCP only):**
+          \`\`\`
+          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-tcping.txt
+          \`\`\`
+          
+          **🟢 Alive (Fast - HTTP test):**
           \`\`\`
           https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-alive.txt
           \`\`\`
           
-          **📦 With Volume (Quality):**
+          **📦 Volume (Quality - GitHub download):**
           \`\`\`
           https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-volume.txt
           \`\`\`
           
-          **🇮🇷 Iran Optimized (Recommended for Iran):**
+          **🇮🇷 Iran (Best for Iran - Bertina DNS):**
           \`\`\`
           https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-iran.txt
           \`\`\`
           
-          **🆕 Recent 75 (Untested):**
+          **🆕 Recent 100 (Untested - Latest):**
           \`\`\`
           https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-recent.txt
           \`\`\`
