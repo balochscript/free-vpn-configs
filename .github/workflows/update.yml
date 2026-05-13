@@ -1,0 +1,206 @@
+name: Update Free VPN Configs
+
+on:
+  schedule:
+    - cron: '0 */5 * * *'  # هر 5 ساعت
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'configs/**'
+      - '.github/workflows/**'
+
+jobs:
+  update-configs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60  # ✅ افزایش timeout
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install --no-cache-dir -r requirements.txt
+      
+      - name: Install Xray-core
+        run: |
+          wget -q https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
+          unzip -o -q Xray-linux-64.zip
+          sudo mv xray /usr/local/bin/
+          sudo chmod +x /usr/local/bin/xray
+          rm -f Xray-linux-64.zip geoip.dat geosite.dat LICENSE README.md
+          xray version
+      
+      #================== SCRAPING ==================#
+      - name: 📡 Scrape Telegram channels
+        env:
+          PYROGRAM_SESSION: ${{ secrets.PYROGRAM_SESSION }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+        run: |
+          cd src
+          python scraper.py
+          
+          if [ ! -f ../raw_configs.json ]; then
+            echo "[]" > ../raw_configs.json
+          fi
+          
+          COUNT=$(jq length ../raw_configs.json)
+          echo "SCRAPED_COUNT=$COUNT" >> $GITHUB_ENV
+          echo "📥 Scraped: $COUNT configs"
+      
+      #================== RECENT (75) ==================#
+      - name: 🆕 Extract recent 75 configs
+        run: |
+          cd src
+          python recent_configs.py
+      
+      #================== TEST 1: ALIVE ==================#
+      - name: 🟢 Test 1 - Alive Only
+        if: env.SCRAPED_COUNT > 0
+        env:
+          TEST_TYPE: alive
+        run: |
+          cd src
+          timeout 20m python tester.py || echo "⏱️ Test timeout"
+          
+          if [ ! -f ../tested_alive.json ]; then
+            echo "[]" > ../tested_alive.json
+          fi
+          
+          COUNT=$(jq '[.[] | select(.alive == true)] | length' ../tested_alive.json)
+          echo "ALIVE_COUNT=$COUNT" >> $GITHUB_ENV
+          echo "🟢 Alive: $COUNT"
+      
+      #================== TEST 2: VOLUME ==================#
+      - name: 📦 Test 2 - Volume (100KB)
+        if: env.SCRAPED_COUNT > 0
+        env:
+          TEST_TYPE: volume
+        run: |
+          cd src
+          timeout 25m python tester.py || echo "⏱️ Test timeout"
+          
+          if [ ! -f ../tested_volume.json ]; then
+            echo "[]" > ../tested_volume.json
+          fi
+          
+          COUNT=$(jq '[.[] | select(.has_volume == true)] | length' ../tested_volume.json)
+          echo "VOLUME_COUNT=$COUNT" >> $GITHUB_ENV
+          echo "📦 Volume: $COUNT"
+      
+      #================== TEST 3: IRAN ==================#
+      - name: 🇮🇷 Test 3 - Iran Optimized
+        if: env.SCRAPED_COUNT > 0
+        env:
+          TEST_TYPE: iran
+        run: |
+          cd src
+          timeout 20m python tester.py || echo "⏱️ Test timeout"
+          
+          if [ ! -f ../tested_iran.json ]; then
+            echo "[]" > ../tested_iran.json
+          fi
+          
+          COUNT=$(jq '[.[] | select(.alive == true)] | length' ../tested_iran.json)
+          echo "IRAN_COUNT=$COUNT" >> $GITHUB_ENV
+          echo "🇮🇷 Iran: $COUNT"
+      
+      #================== GENERATE SUBSCRIPTIONS ==================#
+      - name: 📦 Generate subscription files
+        run: |
+          cd src
+          python utils.py
+      
+      #================== DEPLOY ==================#
+      - name: 🚀 Prepare deployment
+        run: |
+          mkdir -p deploy
+          
+          # کپی فایل‌های subscription
+          for file in subscription-alive.txt subscription-volume.txt subscription-iran.txt subscription-recent.txt index.html; do
+            if [ -f src/$file ]; then
+              cp src/$file deploy/
+              echo "✅ Copied $file"
+            fi
+          done
+          
+          # ساخت فایل stats
+          cat > deploy/stats.json << EOF
+          {
+            "last_update": "$(date -u '+%Y-%m-%d %H:%M:%S UTC')",
+            "scraped": ${SCRAPED_COUNT:-0},
+            "alive": ${ALIVE_COUNT:-0},
+            "volume": ${VOLUME_COUNT:-0},
+            "iran": ${IRAN_COUNT:-0},
+            "recent": 75
+          }
+          EOF
+          
+          echo "📊 Deploy folder:"
+          ls -lah deploy/
+      
+      - name: 📤 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./deploy
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: '🔄 Update: ${{ env.ALIVE_COUNT }} alive, ${{ env.VOLUME_COUNT }} volume, ${{ env.IRAN_COUNT }} iran'
+      
+      #================== SUMMARY ==================#
+      - name: 📊 Build summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## 📊 Update Summary
+          
+          **🕐 Time:** $(date -u '+%Y-%m-%d %H:%M UTC')
+          
+          ### 📈 Statistics
+          
+          | Type | Count | Description |
+          |------|-------|-------------|
+          | 📥 Scraped | ${SCRAPED_COUNT:-0} | Total configs from Telegram |
+          | 🟢 Alive | ${ALIVE_COUNT:-0} | Passed connection test (30s timeout) |
+          | 📦 Volume | ${VOLUME_COUNT:-0} | Downloaded 100KB+ successfully |
+          | 🇮🇷 Iran | ${IRAN_COUNT:-0} | Optimized for Iran (Bertina DNS) |
+          | 🆕 Recent | 75 | Latest configs (no filter) |
+          
+          ### 🔗 Subscription Links
+          
+          **🟢 Alive Only (Fast):**
+          \`\`\`
+          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-alive.txt
+          \`\`\`
+          
+          **📦 With Volume (Quality):**
+          \`\`\`
+          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-volume.txt
+          \`\`\`
+          
+          **🇮🇷 Iran Optimized (Recommended for Iran):**
+          \`\`\`
+          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-iran.txt
+          \`\`\`
+          
+          **🆕 Recent 75 (Untested):**
+          \`\`\`
+          https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/subscription-recent.txt
+          \`\`\`
+          
+          **🌐 Web Interface:**
+          https://${{ github.repository_owner }}.github.io/free-vpn-configs/
+          
+          ---
+          
+          ✅ **All tests completed successfully!**
+          EOF
