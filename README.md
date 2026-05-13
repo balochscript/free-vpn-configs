@@ -1,129 +1,140 @@
 # 🚀 Free VPN Configs
 
-**ساب‌لینک اتوماتیک کانفیگ‌های رایگان V2Ray با 4 روش تست مختلف**
+**ساب‌لینک اتوماتیک کانفیگ‌های رایگان V2Ray با تست هوشمند**
 
 [![Update Status](https://github.com/balochscript/free-vpn-configs/workflows/Update%20Free%20VPN%20Configs/badge.svg)](https://github.com/balochscript/free-vpn-configs/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<div align="center">
+
+### 🇮🇷 زنده باد جمهوری اسلامی ایران | زنده باد بلوچستان 🦁
+
+</div>
 
 ---
 
 ## ✨ ویژگی‌ها
 
-- ✅ **4 نوع ساب‌لینک مختلف** برای نیازهای گوناگون
+- ✅ **3 نوع ساب‌لینک** برای نیازهای مختلف
 - ✅ **بروزرسانی خودکار** هر 5 ساعت یکبار
+- ✅ **تست دقیق** با TCPing و Real Delay
 - ✅ **بهینه شده برای ایران** با DNS برتینا
-- ✅ **تست حجم واقعی** (100 کیلوبایت)
-- ✅ **پروتکل‌ها:** VLESS, Shadowsocks, Trojan
+- ✅ **پروتکل‌ها:** VLESS, VMess, Shadowsocks, Trojan
 - ✅ **کاملاً رایگان و متن‌باز**
 
 ---
 
 ## 📱 لینک‌های اشتراک
 
-### 🟢 لینک 1: فقط زنده بودن (Alive)
+### ⚡ لینک 1: TCPing - سریع‌ترین
 
-`https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription-alive.txt`
+```
+https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription-tcping.txt
+```
 
-- **مناسب برای:** تست سریع، سرعت بالا
-- **روش تست:** فقط بررسی اتصال (30 ثانیه)
-- **تعداد تقریبی:** 15-25 کانفیگ
-
----
-
-### 📦 لینک 2: با حجم واقعی (Volume) ⭐
-
-`https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription-volume.txt`
-
-- **مناسب برای:** دانلود فایل، تماشای ویدیو
-- **روش تست:** دانلود 100KB + بررسی سرعت
-- **تعداد تقریبی:** 8-15 کانفیگ
-- **💡 توصیه می‌شود!**
+- **مناسب برای:** فیلتر سریع کانفیگ‌ها
+- **روش تست:** فقط اتصال TCP (10 ثانیه)
+- **ویژگی:** سریع‌ترین روش، بدون Xray
+- **تعداد تقریبی:** 40-60 کانفیگ
 
 ---
 
-### 🇮🇷 لینک 3: بهینه برای ایران (Iran)
+### 🕐 لینک 2: Real Delay - بهترین کیفیت ⭐
 
-`https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription-iran.txt`
+```
+https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription-realdelay.txt
+```
 
-- **مناسب برای:** کاربران ایرانی
-- **روش تست:** DNS برتینا + تست سایت ایرانی
-- **تعداد تقریبی:** 10-18 کانفیگ
+- **مناسب برای:** استفاده روزمره، کیفیت بالا
+- **روش تست:** HTTP واقعی با Google + DNS برتینا
+- **ویژگی:** تاخیر دقیق (میلی‌ثانیه)، تست کامل
+- **تعداد تقریبی:** 20-40 کانفیگ
 - **DNS برتینا:** `193.186.32.32`
+- **💡 پیشنهاد می‌شود!**
 
 ---
 
-### 🆕 لینک 4: آخرین کانفیگ‌ها (Recent)
+### 🆕 لینک 3: Recent 100 - بدون فیلتر
 
-`https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription-recent.txt`
+```
+https://raw.githubusercontent.com/balochscript/free-vpn-configs/gh-pages/subscription-recent.txt
+```
 
 - **مناسب برای:** آزمایش کانفیگ‌های جدید
 - **روش تست:** بدون تست - مستقیم از کانال‌ها
-- **تعداد ثابت:** 75 کانفیگ
-- **⚠️ برخی ممکن است کار نکنند**
+- **تعداد ثابت:** 100 کانفیگ
+- **⚠️ ممکن است برخی کار نکنند**
 
 ---
 
 ### 🌐 صفحه وب پروژه
 
-`https://balochscript.github.io/free-vpn-configs/`
+```
+https://balochscript.github.io/free-vpn-configs/
+```
 
-در این صفحه: آمار لحظه‌ای • کپی آسان لینک‌ها • رابط کاربری زیبا
+**امکانات:**
+- آمار لحظه‌ای کانفیگ‌ها
+- کپی آسان لینک‌ها
+- رابط کاربری زیبا فارسی
+- نمایش زمان بروزرسانی
 
 ---
 
 ## 🔧 راهنمای استفاده
 
-### 📲 روش 1: استفاده ساده در V2rayNG
+### 📲 نصب در V2rayNG (Android)
 
-**گام 1: کپی لینک**
-- یکی از لینک‌های بالا را کپی کنید
+**گام 1: نصب اپلیکیشن**
+- V2rayNG را از [Google Play](https://play.google.com/store/apps/details?id=com.v2ray.ang) یا [GitHub](https://github.com/2dust/v2rayNG/releases) دانلود کنید
 
 **گام 2: افزودن اشتراک**
-1. V2rayNG را باز کنید
-2. دکمه `+` را بزنید
-3. گزینه "اضافه کردن اشتراک" را بزنید
-4. لینک را Paste کنید و تایید کنید
+1. اپ را باز کنید
+2. دکمه `+` (بالا سمت راست) را بزنید
+3. گزینه **"Import config from Clipboard"** را بزنید
+4. یکی از لینک‌های بالا را کپی کنید
+5. دوباره دکمه `+` → **"Subscribe"** را بزنید
+6. در قسمت **Remarks** یک نام دلخواه بزنید
+7. در قسمت **URL** لینک کپی شده را Paste کنید
+8. روی ✅ بزنید
 
-**گام 3: بروزرسانی**
-1. روی `⋮` کنار نام اشتراک بزنید
-2. "بروزرسانی اشتراک" را بزنید
-3. یک کانفیگ انتخاب کنید
-4. دکمه "اتصال" را بزنید
+**گام 3: بروزرسانی و اتصال**
+1. روی `⋮` کنار اشتراک بزنید
+2. **"Update subscription"** را بزنید
+3. یک کانفیگ با پینگ کم انتخاب کنید
+4. دکمه **"Connect"** را بزنید
 
 ✅ **متصل شدید!**
 
 ---
 
-### 🚀 روش 2: ترکیب V2ray + Psiphon (پیشرفته)
+### 🍎 نصب در V2Box/Shadowrocket (iOS)
 
-این روش به شما **حجم رایگان Psiphon** برای تلگرام می‌دهد
+**V2Box (رایگان):**
+1. از App Store نصب کنید
+2. `+` → **Subscribe**
+3. لینک را Paste کنید
+4. Update → انتخاب کانفیگ → Connect
 
-#### 📱 قسمت A: تنظیم V2rayNG
+**Shadowrocket:**
+1. از App Store خریداری کنید
+2. `+` (بالا سمت راست)
+3. **Type:** Subscribe
+4. **URL:** لینک را Paste کنید
+5. **Remarks:** یک نام دلخواه
+6. Done → اتصال
 
-1. V2rayNG → منو `☰` → Settings
-2. پیدا کردن **Core Settings** و تنظیم `Local proxy port: 10808`
-3. پیدا کردن **Advanced Settings** و تنظیم `Mode: Proxy only`
-4. ذخیره کنید
+---
 
-#### 📱 قسمت B: تنظیم Psiphon
+### 💻 نصب در V2rayN (Windows)
 
-1. Psiphon → Options
-2. در بخش **VPN Settings**:
-   - فعال کنید: `Only tunnel selected apps`
-   - انتخاب کنید: فقط **تلگرام**
-   - **V2rayNG را تیک نزنید!**
-
-3. در بخش **Proxy Settings**:
-   - فعال کنید: `Connect through an HTTP Proxy`
-   - وارد کنید: `Host: 127.0.0.1` و `Port: 10808`
-
-4. دکمه Start را بزنید
-
-#### ✅ نتیجه
-
-مسیر اتصال: `تلگرام → Psiphon (رایگان) → V2ray → اینترنت`
-
-🎉 **تلگرام شما از حجم رایگان Psiphon استفاده می‌کند!**
+1. [V2rayN](https://github.com/2dust/v2rayN/releases) را دانلود و نصب کنید
+2. منوی **Subscription** → **Subscribe setting**
+3. **Add** را بزنید
+4. در **URL** لینک را Paste کنید
+5. **OK** → **Update Subscription**
+6. یک کانفیگ انتخاب کنید
+7. دکمه **Enter** را بزنید
 
 ---
 
@@ -133,39 +144,58 @@
 
 | نوع | تعداد | توضیحات |
 |-----|-------|---------|
-| 📥 جمع‌آوری شده | 20-35 | از 7 کانال تلگرام |
-| 🟢 زنده | 15-25 | تست اتصال موفق |
-| 📦 با حجم | 8-15 | دانلود 100KB موفق |
-| 🇮🇷 بهینه ایران | 10-18 | تست DNS برتینا |
-| 🆕 اخیر | 75 | بدون فیلتر |
+| 📥 جمع‌آوری شده | 80-150 | از 7+ کانال تلگرام |
+| ⚡ TCPing | 40-60 | تست TCP موفق |
+| 🕐 Real Delay | 20-40 | تست HTTP موفق |
+| 🆕 Recent | 100 | بدون فیلتر |
 
 ### 🌍 پروتکل‌ها
 
-- **VLESS** `~65%`
-- **Trojan** `~20%`
-- **Shadowsocks** `~15%`
+- **VLESS** با Reality/TLS `~60%`
+- **VMess** `~20%`
+- **Shadowsocks** `~10%`
+- **Trojan** `~10%`
 
 ### 📡 کانال‌های منبع
 
 `@mitivpn` • `@Configir98` • `@VIPV2rayNGNP` • `@saministamm` • `@zhw_x_club` • `@blackRay` • `@AmyraxVPN`
 
-🙏 **تشکر ویژه از ادمین‌های این کانال‌ها**
+🙏 **تشکر ویژه از ادمین‌های این کانال‌ها برای اشتراک‌گذاری رایگان**
 
 ---
 
-## 🔍 نحوه کار
+## 🔍 نحوه کار (Technical)
 
-این پروژه به صورت خودکار هر 5 ساعت اجرا می‌شود:
+این پروژه با GitHub Actions هر 5 ساعت اجرا می‌شود:
 
-1. **جمع‌آوری:** اسکن 100 پیام آخر از 7 کانال تلگرام
-2. **پارس:** استخراج کانفیگ‌های VLESS, Shadowsocks, Trojan
-3. **حذف تکراری:** بررسی `server:port` و حذف موارد مشابه
-4. **تست زنده:** ارسال درخواست HTTP (timeout: 30 ثانیه)
-5. **تست حجم:** دانلود 100KB (timeout: 45 ثانیه)
-6. **تست ایران:** استفاده از DNS برتینا + دانلود 50KB
-7. **انتشار:** تبدیل به Base64 و آپلود در GitHub Pages
+### 1️⃣ مرحله Scraping
+- اسکن 100 پیام اخیر از هر کانال
+- پارس فرمت‌های: `vless://`, `vmess://`, `ss://`, `trojan://`
+- حذف تکراری با `server:port`
 
-**⏱️ زمان اجرا:** حدود 50-60 دقیقه
+### 2️⃣ مرحله Testing
+
+**Test TCPing:**
+- اتصال مستقیم TCP به `server:port`
+- Timeout: 10 ثانیه
+- Retry: 2 بار
+- بدون نیاز به Xray
+- ⚡ خیلی سریع
+
+**Test RealDelay:**
+- اجرای Xray Core
+- درخواست HTTP به `https://www.google.com/generate_204`
+- DNS: `193.186.32.32` (برتینا)
+- Timeout: 30 ثانیه
+- Retry: 2 بار
+- 🎯 دقیق‌ترین روش
+
+### 3️⃣ مرحله Publishing
+- تبدیل به Base64
+- آپلود در GitHub Pages
+- ساخت صفحه HTML
+
+**⏱️ زمان کل:** 20-40 دقیقه
 
 ---
 
@@ -173,113 +203,285 @@
 
 ### ❓ کدام لینک را استفاده کنم؟
 
-- **در ایران هستید؟** → 🇮🇷 Iran Optimized
-- **کیفیت می‌خواهید؟** → 📦 Volume Test
-- **سرعت مهم است؟** → 🟢 Alive Only
-- **گزینه بیشتر می‌خواهید؟** → 🆕 Recent 75
+**توصیه بر اساس نیاز:**
+
+- **در ایران هستید؟** → 🕐 Real Delay (DNS برتینا)
+- **سرعت مهم است؟** → ⚡ TCPing
+- **گزینه بیشتر می‌خواهید؟** → 🆕 Recent 100
+- **نمی‌دانم چی انتخاب کنم؟** → 🕐 Real Delay
 
 ### ❓ چرا برخی کار نمی‌کنند؟
 
-**دلایل:**
-- سرور پر یا خاموش شده
-- IP فیلتر شده
-- مشکل اینترنت
+**دلایل رایج:**
+- سرور پر یا خاموش شده است
+- IP سرور فیلتر شده
+- محدودیت سرعت یا ترافیک
+- مشکل اینترنت محلی
 
-**راه حل:**
-- چند کانفیگ مختلف تست کنید
-- اشتراک را بروزرسانی کنید
-- از لینک دیگری استفاده کنید
+**راه‌حل:**
+1. چند کانفیگ مختلف تست کنید
+2. اشتراک را بروزرسانی کنید
+3. از لینک دیگری استفاده کنید
+4. چند ساعت بعد دوباره امتحان کنید
+
+### ❓ تفاوت TCPing و Real Delay چیست؟
+
+| ویژگی | TCPing ⚡ | Real Delay 🕐 |
+|--------|----------|---------------|
+| **سرعت تست** | خیلی سریع | متوسط |
+| **دقت** | کم | بالا |
+| **روش** | فقط TCP | HTTP واقعی |
+| **تعداد** | بیشتر | کمتر اما بهتر |
+| **توصیه** | فیلتر اولیه | استفاده روزانه |
+
+### ❓ DNS برتینا چیست؟
+
+**DNS رایگان ضد تحریم ایران:**
+- IP: `193.186.32.32`
+- دور زدن تحریم‌ها
+- سرعت 3ms برای cache
+- 100% پایداری
+- رایگان برای همیشه
+
+**مزیت:** دسترسی به سایت‌های بین‌المللی بدون VPN (برای برخی سایت‌ها)
 
 ### ❓ چگونه سرعت را بهبود دهم؟
 
-1. کانفیگ‌های با سرعت بالاتر را انتخاب کنید (عدد KB/s در نام)
-2. از روش ترکیبی V2ray + Psiphon استفاده کنید
-3. در ساعات کم‌تردد (صبح‌ها) استفاده کنید
-4. Mux را در V2rayNG فعال کنید
+**نکات مهم:**
+
+1. **انتخاب کانفیگ:**
+   - کانفیگ‌هایی با latency کمتر (10-100ms)
+   - از Real Delay استفاده کنید
+
+2. **تنظیمات V2rayNG:**
+   - Settings → Routing → Domain Strategy → `AsIs`
+   - Settings → Core Settings → Enable Mux ✅
+
+3. **بهینه‌سازی:**
+   - در ساعات کم‌تردد استفاده کنید
+   - چند کانفیگ تست کنید
+   - از سرورهای نزدیک‌تر استفاده کنید
 
 ### ❓ هر چند وقت بروزرسانی می‌شود؟
 
-- **خودکار:** هر 5 ساعت یکبار
-- **دستی:** `⋮` کنار اشتراک → بروزرسانی
+**خودکار:**
+- هر 5 ساعت یکبار
+- توسط GitHub Actions
+
+**دستی:**
+- V2rayNG: `⋮` کنار اشتراک → Update subscription
+- هر زمان که بخواهید
 
 ### ❓ آیا امن است؟
 
+**⚠️ هشدار امنیتی:**
+
+این کانفیگ‌ها **رایگان و عمومی** هستند، بنابراین:
+
 **❌ استفاده نکنید برای:**
 - بانک‌داری و تراکنش‌های مالی
-- ورود به حساب‌های حساس
-- ارسال اطلاعات شخصی
+- ورود به حساب‌های حساس (ایمیل، شبکه‌های اجتماعی اصلی)
+- ارسال اطلاعات شخصی/محرمانه
+- فعالیت‌های حساس
 
 **✅ مناسب است برای:**
-- مرور عمومی اینترنت
-- شبکه‌های اجتماعی
+- مرور عمومی وب
 - تماشای ویدیو
+- دانلود فایل
+- دسترسی به سایت‌های فیلتر شده
+
+**💡 توصیه:** برای امنیت بیشتر از VPN پولی استفاده کنید.
 
 ### ❓ "کانفیگ یافت نشد" می‌بینم!
 
-**راه حل:**
-- 2-3 ساعت صبر کنید
-- از لینک Recent 75 استفاده کنید
-- اشتراک را دستی بروزرسانی کنید
+**راه‌حل:**
 
-### ❓ تفاوت 4 لینک؟
+1. **صبر کنید:** 2-3 ساعت صبر کنید (ممکن است در زمان تست باشد)
+2. **بروزرسانی دستی:** اشتراک را دستی Update کنید
+3. **Recent استفاده کنید:** از لینک Recent 100 استفاده کنید
+4. **پاک و دوباره اضافه کنید:** اشتراک را حذف و دوباره اضافه کنید
 
-| لینک | تعداد | سرعت | کیفیت |
-|------|-------|------|--------|
-| 🟢 Alive | متوسط | ⚡⚡⚡ | ⭐⭐ |
-| 📦 Volume | کم | ⚡⚡ | ⭐⭐⭐ |
-| 🇮🇷 Iran | متوسط | ⚡⚡⚡ | ⭐⭐⭐ |
-| 🆕 Recent | زیاد | ⚡ | ⭐ |
+### ❓ چرا پینگ برخی بالاست؟
+
+**دلایل:**
+
+- سرور دور است (مثلاً اروپا/آمریکا)
+- سرور شلوغ است
+- مسیر شبکه طولانی است
+- محدودیت ISP
+
+**راه‌حل:** کانفیگ دیگری با پینگ کمتر انتخاب کنید.
+
+### ❓ می‌توانم در تلگرام استفاده کنم؟
+
+**بله!** ولی:
+
+- Proxy تلگرام را روی System خالی بگذارید
+- V2rayNG را اجرا کنید
+- تلگرام از طریق VPN سیستم متصل می‌شود
+
+**نکته:** برای صرفه‌جویی در حجم VPN، از MTProto Proxy اختصاصی تلگرام استفاده کنید.
 
 ---
 
 ## ⚠️ سلب مسئولیت
 
-این پروژه فقط برای اهداف آموزشی و دسترسی آزاد به اطلاعات است. استفاده از VPN در برخی کشورها محدودیت قانونی دارد. کاربران مسئول رعایت قوانین کشور خود هستند. کانفیگ‌ها از منابع عمومی جمع‌آوری می‌شوند و هیچ تضمینی برای امنیت یا حریم خصوصی وجود ندارد. از این سرویس مسئولانه استفاده کنید. سازندگان هیچ مسئولیتی در قبال نحوه استفاده ندارند.
+این پروژه **فقط برای اهداف آموزشی و دسترسی آزاد به اطلاعات** ایجاد شده است.
+
+- استفاده از VPN در برخی کشورها **محدودیت قانونی** دارد
+- کاربران **مسئول رعایت قوانین کشور خود** هستند
+- کانفیگ‌ها از **منابع عمومی** جمع‌آوری شده‌اند
+- **هیچ تضمینی** برای امنیت، حریم خصوصی یا سرعت وجود ندارد
+- از این سرویس **مسئولانه** استفاده کنید
+- سازندگان **هیچ مسئولیتی** در قبال نحوه استفاده ندارند
+
+**استفاده از این پروژه به معنای پذیرش شرایط فوق است.**
 
 ---
 
 ## 🤝 مشارکت
 
-### افزودن کانال جدید
+### 🆕 افزودن کانال جدید
 
-فایل `configs/channels.json` را ویرایش کنید و Pull Request بفرستید.
+فایل `configs/channels.json` را ویرایش کنید:
 
-### گزارش مشکل
+```json
+{
+  "telegram_channels": [
+    {
+      "username": "YOUR_CHANNEL",
+      "limit": 100
+    }
+  ]
+}
+```
 
-از [Issues](https://github.com/balochscript/free-vpn-configs/issues) استفاده کنید
+سپس Pull Request بفرستید.
 
-### پیشنهاد و بحث
+### 🐛 گزارش مشکل
 
-از [Discussions](https://github.com/balochscript/free-vpn-configs/discussions) استفاده کنید
+از [Issues](https://github.com/balochscript/free-vpn-configs/issues) استفاده کنید.
+
+**قبل از گزارش:**
+- بررسی کنید مشکل قبلاً گزارش نشده باشد
+- اطلاعات کامل بدهید (سیستم‌عامل، نسخه اپ، لاگ)
+
+### 💬 بحث و پیشنهاد
+
+از [Discussions](https://github.com/balochscript/free-vpn-configs/discussions) استفاده کنید.
+
+**موضوعات:**
+- پیشنهاد ویژگی جدید
+- سوال فنی
+- بحث عمومی
+
+---
+
+## 🛠️ نصب محلی (پیشرفته)
+
+اگر می‌خواهید خودتان پروژه را اجرا کنید:
+
+### پیش‌نیازها
+
+- Python 3.10+
+- Xray-core
+- حساب Telegram API
+
+### مراحل
+
+**1. Clone:**
+
+```bash
+git clone https://github.com/balochscript/free-vpn-configs.git
+cd free-vpn-configs
+```
+
+**2. نصب:**
+
+```bash
+pip install -r requirements.txt
+```
+
+**3. تنظیمات:**
+
+در `configs/channels.json` کانال‌های مورد نظر را اضافه کنید.
+
+**4. Telegram Session:**
+
+```bash
+cd src
+python scraper.py
+```
+
+اطلاعات API تلگرام را وارد کنید.
+
+**5. اجرا:**
+
+```bash
+python scraper.py    # جمع‌آوری
+python recent_configs.py    # استخراج اخیر
+TEST_TYPE=tcping python tester.py    # تست TCPing
+TEST_TYPE=realdelay python tester.py    # تست RealDelay
+python utils.py    # ساخت subscription
+```
 
 ---
 
 ## 📜 مجوز
 
-MIT License - استفاده آزاد برای همه
+**MIT License** - استفاده آزاد برای همه
 
 متن کامل: [LICENSE](LICENSE)
 
----
-
-## 📞 ارتباط
-
-- 📦 **GitHub:** [balochscript/free-vpn-configs](https://github.com/balochscript/free-vpn-configs)
-- 🌐 **وب:** [balochscript.github.io/free-vpn-configs](https://balochscript.github.io/free-vpn-configs)
-- 🐛 **گزارش:** [Issues](https://github.com/balochscript/free-vpn-configs/issues)
-- 💬 **بحث:** [Discussions](https://github.com/balochscript/free-vpn-configs/discussions)
+```
+استفاده تجاری ✅
+تغییر و توزیع ✅
+استفاده شخصی ✅
+بدون تضمین ⚠️
+```
 
 ---
 
-## ⭐ حمایت
+## 📞 ارتباط و لینک‌های مفید
 
-اگر این پروژه برایتان مفید بود:
+### 🔗 لینک‌های پروژه
 
-1. ⭐ یک Star بدهید
-2. 🔄 با دوستان به اشتراک بگذارید
-3. 🐛 باگ‌ها را گزارش کنید
-4. 💡 ایده‌های خود را مطرح کنید
-5. 🤝 در توسعه مشارکت کنید
+- 📦 **مخزن GitHub:** [balochscript/free-vpn-configs](https://github.com/balochscript/free-vpn-configs)
+- 🌐 **وب‌سایت:** [balochscript.github.io/free-vpn-configs](https://balochscript.github.io/free-vpn-configs)
+- 🐛 **گزارش باگ:** [Issues](https://github.com/balochscript/free-vpn-configs/issues)
+- 💬 **بحث و گفتگو:** [Discussions](https://github.com/balochscript/free-vpn-configs/discussions)
+
+### 🌐 منابع مفید
+
+- 🌍 **DNS برتینا:** [bertina.ir/dns](https://www.bertina.ir/dns)
+- 📱 **V2rayNG:** [GitHub](https://github.com/2dust/v2rayNG)
+- 💻 **V2rayN:** [GitHub](https://github.com/2dust/v2rayN)
+- 📚 **راهنمای V2Ray:** [v2ray.com](https://www.v2ray.com)
+
+---
+
+## ⭐ حمایت از پروژه
+
+اگر این پروژه برایتان **مفید** بود:
+
+1. ⭐ **یک Star بدهید** (بالای صفحه)
+2. 🔄 **با دوستان به اشتراک بگذارید**
+3. 🐛 **باگ‌ها را گزارش کنید**
+4. 💡 **ایده‌های خود را مطرح کنید**
+5. 🤝 **در توسعه مشارکت کنید**
+6. 📢 **در شبکه‌های اجتماعی معرفی کنید**
+
+**هر ستاره انگیزه‌ای برای ادامه کار است! 🙏**
+
+---
+
+## 📈 آمار GitHub
+
+![Stars](https://img.shields.io/github/stars/balochscript/free-vpn-configs?style=social)
+![Forks](https://img.shields.io/github/forks/balochscript/free-vpn-configs?style=social)
+![Issues](https://img.shields.io/github/issues/balochscript/free-vpn-configs)
+![License](https://img.shields.io/github/license/balochscript/free-vpn-configs)
+![Last Commit](https://img.shields.io/github/last-commit/balochscript/free-vpn-configs)
 
 ---
 
@@ -287,10 +489,16 @@ MIT License - استفاده آزاد برای همه
 
 ## 🌟 Made with ❤️ for Free Internet
 
-**نسخه 2.0** | **2025**
+### 🇮🇷 زنده باد جمهوری اسلامی ایران | زنده باد بلوچستان 🦁
 
-**دسترسی آزاد به اینترنت حق همه است**
+**نسخه 3.0** | **2025**
 
-[![Stars](https://img.shields.io/github/stars/balochscript/free-vpn-configs?style=social)](https://github.com/balochscript/free-vpn-configs)
+**دسترسی آزاد به اطلاعات حق همه است**
+
+---
+
+[![Star History](https://img.shields.io/github/stars/balochscript/free-vpn-configs?style=social)](https://github.com/balochscript/free-vpn-configs)
+
+**⭐ اگر مفید بود، حتماً Star بدهید!**
 
 </div>
