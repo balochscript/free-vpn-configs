@@ -6,9 +6,16 @@
     "saministamm",
     "zhw_x_club",
     "blackRay",
-    "AmyraxVPN"
+    "AzadInternet_TV",
+    "proxymtprotoir",
+    "AarazV2ray",
+    "V2rayEnglish",
+    "v2psiiphon",
+    "KurdConfing",
+    "Vpn_jet7",
+    "filtershekan_channel"
   ],
-  "supported_protocols": ["vless", "ss", "shadowsocks", "trojan"],
+  "supported_protocols": ["vless", "vmess", "ss", "shadowsocks", "trojan"],
   "test_settings": {
     "concurrent_tests": 12,
     "connection_timeout": 10,
