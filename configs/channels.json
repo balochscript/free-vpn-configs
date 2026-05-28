@@ -13,7 +13,11 @@
     "v2psiiphon",
     "KurdConfing",
     "Vpn_jet7",
-    "filtershekan_channel"
+    "filtershekan_channel",
+    "kia_net",
+    "AmyraxConfig",
+    "V2rayNGX",
+    "ArioTweet"
   ],
   "supported_protocols": ["vless", "vmess", "ss", "shadowsocks", "trojan"],
   "test_settings": {
@@ -21,6 +25,6 @@
     "connection_timeout": 10,
     "volume_test_enabled": true,
     "min_volume_mb": 2,
-    "max_messages_per_channel": 100
+    "max_messages_per_channel": 75
   }
 }
